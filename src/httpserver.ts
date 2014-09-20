@@ -4,6 +4,7 @@ import express = require('express');
 require('express-resource');
 var session: any = require('express-session');
 var cookieParser: any = require('cookie-parser');
+var livereload: any = require('connect-livereload');
 import log4js = require('log4js');
 import SubApplication = require('./subapplication');
 import sample = require('./sample/index');
@@ -16,6 +17,9 @@ class HttpServer {
     private app = express();
 
     listen(port: number, localIp: string) {
+        if (livereload != null) {
+            this.app.use(livereload());
+        }
         removeWWW(this.app);
         this.app.use(log);
         useSession(this.app);
