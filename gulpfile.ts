@@ -50,7 +50,7 @@ gulp.task('serve', () => {
 });
 
 gulp.task('clean', () => {
-    gulp.src(['app', 'dist', '!.git'], { read: false })
+    gulp.src(['app', 'dist', '!**/.git/**'], { read: false })
         .pipe(clean());
 });
 

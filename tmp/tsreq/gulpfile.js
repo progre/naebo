@@ -48,7 +48,7 @@ gulp.task('serve', function () {
 });
 
 gulp.task('clean', function () {
-    gulp.src(['app', 'dist', '!.git'], { read: false }).pipe(clean());
+    gulp.src(['app', 'dist', '!**/.git/**'], { read: false }).pipe(clean());
 });
 
 gulp.task('deploy', function () {
