@@ -60,7 +60,7 @@ gulp.task('deploy-git', ['deploy-copy'], function () {
         'git commit -a -m "update"',
         'git push origin master'
     ].forEach(function (x) {
-        stream.pipe(exec(x));
+        stream = stream.pipe(exec(x));
     });
     return stream;
 });
