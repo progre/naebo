@@ -10,33 +10,31 @@ var styl = require('gulp-styl');
 var server = require('gulp-express');
 var exec = require('gulp-exec');
 
-gulp.task('default', () => {
+gulp.task('default', function () {
     runSequence('build', 'serve');
 });
 
 gulp.task('build', ['ts', 'jade', 'styl']);
 
-gulp.task('ts', () => new Promise(
-    (resolve, reject) => {
+gulp.task('ts', function () {
+    return new Promise(function (resolve, reject) {
         tsd({ command: 'reinstall', config: './tsd.json' }, resolve);
-    }).then(() => new Promise((resolve, reject) => {
-        gulp.src('src/**/*.ts')
-            .pipe(typescript({ noImplicitAny: true, sourcemap: true }))
-            .pipe(gulp.dest('app/'))
-            .on('end', resolve);
-    })));
+    }).then(function () {
+        return new Promise(function (resolve, reject) {
+            gulp.src('src/**/*.ts').pipe(typescript({ noImplicitAny: true, sourcemap: true })).pipe(gulp.dest('app/')).on('end', resolve);
+        });
+    });
+});
 
-gulp.task('jade', () =>
-    gulp.src('src/**/*.jade')
-        .pipe(jade())
-        .pipe(gulp.dest('app/')));
+gulp.task('jade', function () {
+    return gulp.src('src/**/*.jade').pipe(jade()).pipe(gulp.dest('app/'));
+});
 
-gulp.task('styl', () =>
-    gulp.src('src/**/*.styl')
-        .pipe(styl())
-        .pipe(gulp.dest('app/')));
+gulp.task('styl', function () {
+    return gulp.src('src/**/*.styl').pipe(styl()).pipe(gulp.dest('app/'));
+});
 
-gulp.task('serve', () => {
+gulp.task('serve', function () {
     server.run({
         file: 'app/server.js'
     });
@@ -48,23 +46,22 @@ gulp.task('serve', () => {
     gulp.watch('app/**/*.js', server.run);
 });
 
-gulp.task('deploy-copy', () =>
-    gulp.src([
+gulp.task('deploy-copy', function () {
+    return gulp.src([
         'app/**', 'package.json',
         '!**/*.map', '!app/*/public/javascript/**'
-    ])
-        .pipe(gulp.dest('dist/'))
-    );
-gulp.task('deploy-git', ['deploy-copy'], () => {
+    ]).pipe(gulp.dest('dist/'));
+});
+gulp.task('deploy-git', ['deploy-copy'], function () {
     var stream = gulp.src('./dist/**/**');
     [
         'cd dist/',
         'git add -A',
         'git commit -a -m "update"',
-        'git push origin master',
-    ].forEach(x => {
-            stream.pipe(exec(x));
-        });
+        'git push origin master'
+    ].forEach(function (x) {
+        stream.pipe(exec(x));
+    });
     return stream;
 });
 gulp.task('deploy', ['deploy-git'], function () {
