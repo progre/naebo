@@ -20,3 +20,4 @@ server/app/public/**/*.ts
 !server/app/public/javascript/config.js
 !server/app/public/javascript/vendor/**
 !gulpfile.js
+!tmp/

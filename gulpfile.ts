@@ -16,6 +16,7 @@ gulp.task('default', () => {
 });
 
 gulp.task('build', ['ts', 'jade', 'styl']);
+gulp.task('release-build', ['ts', 'release-jade', 'styl']);
 
 gulp.task('ts', () => new Promise(
     (resolve, reject) => {
@@ -27,10 +28,13 @@ gulp.task('ts', () => new Promise(
             .on('end', resolve);
     })));
 
-gulp.task('jade', () =>
-    gulp.src('src/**/*.jade')
-        .pipe(jade())
-        .pipe(gulp.dest('app/')));
+gulp.task('jade', jadeTask(true));
+gulp.task('release-jade', jadeTask(false));
+function jadeTask(debug: boolean) {
+    return () => gulp.src('src/**/*.jade')
+        .pipe(jade({ data: { debug: debug } }))
+        .pipe(gulp.dest('app/'));
+}
 
 gulp.task('styl', () =>
     gulp.src('src/**/*.styl')
@@ -49,22 +53,25 @@ gulp.task('serve', () => {
     gulp.watch('app/**/*.js', server.run);
 });
 
-gulp.task('clean', () => {
-    gulp.src(['app', 'dist/**/*.*', '!dist/.git/**'], { read: false })
-        .pipe(clean());
-});
+gulp.task('clean', () =>
+    gulp.src(['app', '!dist/.git/**', 'dist/**/*'], { read: false })
+        .pipe(clean()));
 
-gulp.task('deploy', () => new Promise(
+gulp.task('deploy', () => sequence(
     (resolve, reject) => {
-        runSequence('clean', 'build', resolve);
-    }).then(() => new Promise((resolve, reject) => {
-        gulp.src([
-            'app/**', 'package.json',
-            '!**/*.map', '!app/*/public/javascript/**'
-        ])
+        runSequence(['clean'], ['release-build'], resolve);
+    }, (resolve, reject) => {
+        gulp.src('package.json')
             .pipe(gulp.dest('dist/'))
             .on('end', resolve);
-    })).then(() => new Promise((resolve, reject) => {
+    }, (resolve, reject) => {
+        gulp.src([
+            'app/**',
+            '!**/*.map', '!app/*/public/javascript/**'
+        ])
+            .pipe(gulp.dest('dist/app/'))
+            .on('end', resolve);
+    }, (resolve, reject) => {
         var cmd = [
             'git add -A',
             'git commit -a -m "update"',
@@ -80,4 +87,11 @@ gulp.task('deploy', () => new Promise(
                 }
                 resolve();
             });
-    })));
+    }));
+
+function sequence(...callbacks: Array<(resolve, reject) => void>) {
+    return callbacks.reduce(
+        (promise: Promise<any>, callback: (resolve, reject) => void) =>
+            promise.then(() => new Promise(callback)),
+        Promise.resolve());
+}
