@@ -1,23 +1,14 @@
-node_modules/
 dist/
-clientbin/
-bin/
-obj/
-*.js
+log/
+node_modules/
+tmp/
+
 *.css
 *.html
+*.js
 *.map
-*.suo
-*.user
-*.log*
 
-server/app/public/**/*.ts
+typings/*/**/*.d.ts
+typings/tsd.d.ts
 
-**/typings/*/**/*.d.ts
-**/typings/tsd.d.ts
-
-!Gruntfile.js
-!server/app/public/javascript/config.js
-!server/app/public/javascript/vendor/**
 !gulpfile.js
-!tmp/
