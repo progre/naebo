@@ -1,5 +1,6 @@
 /// <reference path="../typings/tsd.d.ts"/>
 /// <reference path="../typings/log4js.d.ts"/>
+require('es6-promise').polyfill();
 require('source-map-support').install();
 import fs = require('fs');
 import log4js = require('log4js');
@@ -31,4 +32,4 @@ log4js.configure({
     ]
 });
 
-new HttpServer().listen(openShift.port, openShift.localIp);
+new HttpServer().listen(openShift.port, openShift.localIp, openShift.debug);

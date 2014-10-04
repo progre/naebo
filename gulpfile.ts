@@ -3,30 +3,57 @@ global.Promise = global.Promise || require('es6-promise').Promise;
 import childProcess = require('child_process');
 var merge = require('event-stream').merge;
 var runSequence = require('run-sequence');
-var gulp = require('gulp');
+import gulp = require('gulp');
 var tsd = require('gulp-tsd');
-var typescript = require('gulp-tsc');
-var jade = require('gulp-jade');
-var styl = require('gulp-styl');
+var typescript: IGulpPlugin = require('gulp-tsc');
+var jade: IGulpPlugin = require('gulp-jade');
+var styl: IGulpPlugin = require('gulp-styl');
 var server = require('gulp-express');
-var clean = require('gulp-clean');
+var clean: IGulpPlugin = require('gulp-clean');
+var rjs = require('gulp-requirejs');
 
 gulp.task('default', () => {
     runSequence('build', 'serve');
 });
 
-gulp.task('build', ['ts', 'jade', 'styl']);
-gulp.task('release-build', ['ts', 'release-jade', 'styl']);
+gulp.task('build', ['typescript', 'jade', 'styl', 'copy']);
+gulp.task('release-build', ['clean'], callback =>
+    runSequence(['release-typescript', 'release-jade', 'styl', 'copy'], callback));
 
-gulp.task('ts', () => new Promise(
-    (resolve, reject) => {
-        tsd({ command: 'reinstall', config: './tsd.json' }, resolve);
-    }).then(() => new Promise((resolve, reject) => {
-        gulp.src('src/**/*.ts')
-            .pipe(typescript({ noImplicitAny: true, sourcemap: true }))
-            .pipe(gulp.dest('app/'))
-            .on('end', resolve);
-    })));
+gulp.task('typescript', callback => {
+    runSequence('tsd', ['server-ts', 'client-ts'], callback);
+});
+gulp.task('release-typescript', callback => {
+    runSequence('tsd', ['server-ts', 'client-ts'], 'requirejs', callback);
+});
+
+gulp.task('tsd', callback =>
+    tsd({ command: 'reinstall', config: './tsd.json' }, callback));
+
+gulp.task('server-ts', () =>
+    gulp.src(['src/**/*.ts', '!src/*/public/**'])
+        .pipe(typescript({ noImplicitAny: true, sourcemap: true }))
+        .pipe(gulp.dest('app/')));
+
+gulp.task('client-ts', () =>
+    gulp.src('src/*/public/**/*.ts')
+        .pipe(typescript({ module: 'amd', noImplicitAny: true, sourcemap: true }))
+        .pipe(gulp.dest('app/')));
+
+gulp.task('requirejs', callback => {
+    rjs({
+        baseUrl: 'app/m2l/public/javascript/',
+        name: 'main',
+        mainConfigFile: 'app/m2l/public/javascript/config.js',
+        out: 'main.js'
+    })
+        .pipe(gulp.dest('app/m2l/public/js/'));
+    callback();
+});
+
+gulp.task('copy', () =>
+    gulp.src(['src/**/*.js', 'src/**/*.json'])
+        .pipe(gulp.dest('app/')));
 
 gulp.task('jade', jadeTask(true));
 gulp.task('release-jade', jadeTask(false));
@@ -48,19 +75,20 @@ gulp.task('serve', () => {
 
     gulp.watch('src/**/*.jade', ['jade']);
     gulp.watch('src/**/*.styl', ['styl']);
+    gulp.watch(['src/**/*.ts', '!src/*/public/**'], ['server-ts']);
+    gulp.watch('src/*/public/**/*.ts', ['client-ts']);
+    gulp.watch(['src/**/*.js', 'src/**/*.json'], ['copy']);
 
-    gulp.watch(['app/**/*.html', 'app/**/*.css'], server.notify);
-    gulp.watch('app/**/*.js', server.run);
+    gulp.watch(['app/**/*.html', 'app/**/*.css', 'app/*/public/**/*.js'], server.notify);
+    gulp.watch(['app/**/*.js', '!app/*/public/**'], server.run);
 });
 
 gulp.task('clean', () =>
     gulp.src(['app', '!dist/.git/**', 'dist/**/*'], { read: false })
         .pipe(clean()));
 
-gulp.task('deploy', () => sequence(
+gulp.task('deploy', ['release-build'], () => sequence(
     (resolve, reject) => {
-        runSequence(['clean'], ['release-build'], resolve);
-    }, (resolve, reject) => {
         gulp.src('package.json')
             .pipe(gulp.dest('dist/'))
             .on('end', resolve);

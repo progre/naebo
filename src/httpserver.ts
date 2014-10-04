@@ -8,6 +8,7 @@ var livereload: any = require('connect-livereload');
 import log4js = require('log4js');
 import SubApplication = require('./subapplication');
 import sample = require('./sample/index');
+import m2l = require('./m2l/index');
 
 var logger = log4js.getLogger('server');
 var accessLogger = log4js.getLogger('access');
@@ -16,8 +17,8 @@ export = HttpServer;
 class HttpServer {
     private app = express();
 
-    listen(port: number, localIp: string) {
-        if (livereload != null) {
+    listen(port: number, localIp: string, debug: boolean) {
+        if (debug) {
             this.app.use(livereload());
         }
         removeWWW(this.app);
@@ -25,6 +26,9 @@ class HttpServer {
         useSession(this.app);
 
         sample.use(new SubApplication('sample', this.app));
+
+        this.app.use('/m2l', express.static(__dirname + '/m2l/public'));
+        this.app.get('/m2l/api/1/lists/:screenName/:slug', m2l.lists.show);
 
         this.app.use(express.static(__dirname + '/public'));
 
