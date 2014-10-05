@@ -5,28 +5,31 @@ var tsd = require('gulp-tsd');
 var typescript: IGulpPlugin = require('gulp-tsc');
 var rjs = require('gulp-requirejs');
 
-gulp.task('release-build', ['clean'], callback =>
-    runSequence(['release-typescript', 'release-jade', 'styl', 'copy'], callback));
-
-gulp.task('typescript', callback => {
-    runSequence('tsd', ['server-ts', 'client-ts'], callback);
-});
-gulp.task('release-typescript', callback => {
-    runSequence('tsd', ['server-ts', 'client-ts'], 'requirejs', callback);
+gulp.task('ts', callback => {
+    runSequence('ts-tsd', ['ts-server', 'ts-client'], callback);
 });
 
-gulp.task('tsd', callback =>
+gulp.task('ts-release', callback => {
+    runSequence('ts-tsd', ['ts-server', 'ts-client'], 'requirejs', callback);
+});
+
+gulp.task('ts-tsd', callback =>
     tsd({ command: 'reinstall', config: './tsd.json' }, callback));
 
-gulp.task('server-ts', () =>
+gulp.task('ts-server', () =>
     gulp.src(['src/**/*.ts', '!src/*/public/**'])
         .pipe(typescript({ noImplicitAny: true, sourcemap: true }))
         .pipe(gulp.dest('app/')));
 
-gulp.task('client-ts', () =>
+gulp.task('ts-client', () =>
     gulp.src('src/*/public/**/*.ts')
         .pipe(typescript({ module: 'amd', noImplicitAny: true, sourcemap: true }))
         .pipe(gulp.dest('app/')));
+
+gulp.task('ts-watch', () => {
+    gulp.watch(['src/**/*.ts', '!src/*/public/**'], ['ts-server']);
+    gulp.watch('src/*/public/**/*.ts', ['ts-client']);
+});
 
 gulp.task('requirejs', callback => {
     rjs({

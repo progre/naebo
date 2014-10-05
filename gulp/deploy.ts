@@ -3,7 +3,7 @@ global.Promise = global.Promise || require('es6-promise').Promise;
 import childProcess = require('child_process');
 import gulp = require('gulp');
 
-gulp.task('deploy', ['release-build'], () => sequence(
+gulp.task('deploy', ['build-release'], () => sequence(
     (resolve, reject) => {
         gulp.src('package.json')
             .pipe(gulp.dest('dist/'))

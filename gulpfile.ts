@@ -13,14 +13,21 @@ gulp.task('default', () => {
     runSequence('build', 'serve');
 });
 
-gulp.task('build', ['typescript', 'jade', 'styl', 'copy']);
+gulp.task('clean', () =>
+    gulp.src(['app', '!dist/.git/**', 'dist/**/*'], { read: false })
+        .pipe(clean()));
+
+gulp.task('build', ['ts', 'jade', 'styl', 'copy']);
+
+gulp.task('build-release', ['clean'], callback =>
+    runSequence(['ts-release', 'jade-release', 'styl', 'copy'], callback));
 
 gulp.task('copy', () =>
     gulp.src(['src/**/*.js', 'src/**/*.json'])
         .pipe(gulp.dest('app/')));
 
 gulp.task('jade', jadeTask(true));
-gulp.task('release-jade', jadeTask(false));
+gulp.task('jade-release', jadeTask(false));
 function jadeTask(debug: boolean) {
     return () => gulp.src('src/**/*.jade')
         .pipe(jade({ data: { debug: debug } }))
@@ -32,21 +39,17 @@ gulp.task('styl', () =>
         .pipe(styl())
         .pipe(gulp.dest('app/')));
 
-gulp.task('serve', () => {
+gulp.task('serve', ['watch'], () => {
     server.run({
         file: 'app/server.js'
     });
+});
 
+gulp.task('watch', ['ts-watch'], () => {
     gulp.watch('src/**/*.jade', ['jade']);
     gulp.watch('src/**/*.styl', ['styl']);
-    gulp.watch(['src/**/*.ts', '!src/*/public/**'], ['server-ts']);
-    gulp.watch('src/*/public/**/*.ts', ['client-ts']);
     gulp.watch(['src/**/*.js', 'src/**/*.json'], ['copy']);
 
     gulp.watch(['app/**/*.html', 'app/**/*.css', 'app/*/public/**/*.js'], server.notify);
     gulp.watch(['app/**/*.js', '!app/*/public/**'], server.run);
 });
-
-gulp.task('clean', () =>
-    gulp.src(['app', '!dist/.git/**', 'dist/**/*'], { read: false })
-        .pipe(clean()));
