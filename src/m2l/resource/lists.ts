@@ -27,7 +27,7 @@ function getScreenNames(twitter: any, screenName: string, slug: string): Promise
                 screenNames = screenNames.concat(names);
                 var nextCursor: number = json.next_cursor;
                 if (nextCursor === 0) {
-                    callback(screenNames);
+                    callback(screenNames.filter(unique));
                     return;
                 }
                 recursion(nextCursor, screenNames, callback);
@@ -37,3 +37,6 @@ function getScreenNames(twitter: any, screenName: string, slug: string): Promise
     });
 }
 
+function unique<T>(current: T, index: number, self: T[]) {
+    return self.indexOf(current) === index;
+}

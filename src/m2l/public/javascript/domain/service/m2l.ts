@@ -70,14 +70,14 @@ function makeTweetSet(users: string[], message: string, joinMessage: string, tex
 
 function splitUsers(users: string[], usersArea: number) {
     var usersSet: string[] = [];
-    users.reduce((prev, current) => {
+    usersSet.push(users.reduce((prev, current) => {
         var newUsers = prev + '@' + current + ' ';
         if (newUsers.length > usersArea) {
             usersSet.push(prev);
             newUsers = '.@' + current + ' ';
         }
         return newUsers;
-    }, '.');
+    }, '.'));
     return usersSet;
 }
 
