@@ -1,4 +1,6 @@
 /// <reference path="../typings/tsd.d.ts"/>
+global.Promise = global.Promise || require('es6-promise').Promise;
+import fs = require('fs');
 import gulp = require('gulp');
 var runSequence = require('run-sequence');
 var tsd = require('gulp-tsd');
@@ -31,13 +33,46 @@ gulp.task('ts-watch', () => {
     gulp.watch('src/*/public/**/*.ts', ['ts-client']);
 });
 
-gulp.task('requirejs', callback => {
-    rjs({
-        baseUrl: 'app/m2l/public/javascript/',
-        name: 'main',
-        mainConfigFile: 'app/m2l/public/javascript/config.js',
-        out: 'main.js'
-    })
-        .pipe(gulp.dest('app/m2l/public/js/'));
-    callback();
-});
+gulp.task('requirejs', () =>
+    getAppNames()
+        .then(apps => Promise.all(apps.map(app => new Promise((resolve, reject) => {
+            var publicDir = 'app/' + app + '/public/';
+            fs.exists(publicDir + 'javascript/config.js', exists => {
+                if (!exists) {
+                    return resolve();
+                }
+                rjs({
+                    baseUrl: publicDir + 'javascript/',
+                    name: 'main',
+                    mainConfigFile: publicDir + 'javascript/config.js',
+                    out: 'main.js'
+                })
+                    .pipe(gulp.dest(publicDir + 'js/'));
+                resolve();
+            });
+        })))));
+
+function getAppNames() {
+    return new Promise<string[]>((resolve, reject) => {
+        fs.readdir('app', (err, files) => {
+            if (err != null) {
+                return reject(err);
+            }
+            filter(files)
+                .then(resolve)
+                .catch(reject);
+        });
+    });
+}
+
+function filter(files: string[]) {
+    return Promise.all(files.map(file => new Promise<string>((resolve, reject) => {
+        if (file === 'public')
+            return resolve();
+        fs.stat('app/' + file, (err, stats) => {
+            if (err != null || !stats.isDirectory())
+                return resolve();
+            resolve(file);
+        });
+    }))).then(list => list.filter(x => x != null));
+}
