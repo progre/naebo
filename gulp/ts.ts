@@ -6,6 +6,7 @@ var runSequence = require('run-sequence');
 var tsd = require('gulp-tsd');
 var typescript: IGulpPlugin = require('gulp-tsc');
 var rjs = require('gulp-requirejs');
+import fileUtils = require('../src/fileutils');
 
 gulp.task('ts', callback => {
     runSequence('ts-tsd', ['ts-server', 'ts-client'], callback);
@@ -34,7 +35,7 @@ gulp.task('ts-watch', () => {
 });
 
 gulp.task('requirejs', () =>
-    getAppNames()
+    fileUtils.getAppNames()
         .then(apps => Promise.all(apps.map(app => new Promise((resolve, reject) => {
             var publicDir = 'app/' + app + '/public/';
             fs.exists(publicDir + 'javascript/config.js', exists => {
@@ -51,28 +52,3 @@ gulp.task('requirejs', () =>
                 resolve();
             });
         })))));
-
-function getAppNames() {
-    return new Promise<string[]>((resolve, reject) => {
-        fs.readdir('app', (err, files) => {
-            if (err != null) {
-                return reject(err);
-            }
-            filter(files)
-                .then(resolve)
-                .catch(reject);
-        });
-    });
-}
-
-function filter(files: string[]) {
-    return Promise.all(files.map(file => new Promise<string>((resolve, reject) => {
-        if (file === 'public')
-            return resolve();
-        fs.stat('app/' + file, (err, stats) => {
-            if (err != null || !stats.isDirectory())
-                return resolve();
-            resolve(file);
-        });
-    }))).then(list => list.filter(x => x != null));
-}

@@ -7,6 +7,7 @@ var cookieParser: any = require('cookie-parser');
 var livereload: any = require('connect-livereload');
 import log4js = require('log4js');
 import SubApplication = require('./subapplication');
+import fileUtils = require('./fileutils');
 import sample = require('./sample/index');
 import m2l = require('./m2l/index');
 
@@ -25,17 +26,20 @@ class HttpServer {
         this.app.use(log);
         useSession(this.app);
 
-        sample.use(new SubApplication('sample', this.app));
-
-        this.app.use('/m2l', express.static(__dirname + '/m2l/public'));
         this.app.get('/m2l/api/1/lists/:screenName/:slug', m2l.lists.show);
 
         this.app.use(express.static(__dirname + '/public'));
 
-        var server = this.app.listen(port, localIp, () => {
-            logger.info('Listening on port %d', server.address().port);
+        fileUtils.getAppNames().then(apps => {
+            apps.forEach(appName => {
+                this.app.use('/' + appName, express.static(__dirname + '/' + appName + '/public'));
+            });
+
+            var server = this.app.listen(port, localIp, () => {
+                logger.info('Listening on port %d', server.address().port);
+            });
+            log4js.getLogger('console').debug('debug mode.');// log4jsからコンソールへ何かしらの出力をしないと、grunt serveのwatchが効かなくなる
         });
-        log4js.getLogger('console').debug('debug mode.');// log4jsからコンソールへ何かしらの出力をしないと、grunt serveのwatchが効かなくなる
     }
 }
 
