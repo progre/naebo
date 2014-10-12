@@ -7,7 +7,7 @@ var cookieParser: any = require('cookie-parser');
 var livereload: any = require('connect-livereload');
 import log4js = require('log4js');
 import SubApplication = require('./subapplication');
-import fileUtils = require('./fileutils');
+var fileUtils = require('./fileutils');
 import sample = require('./sample/index');
 import m2l = require('./m2l/index');
 
@@ -30,7 +30,7 @@ class HttpServer {
 
         this.app.use(express.static(__dirname + '/public'));
 
-        fileUtils.getAppNames().then(apps => {
+        fileUtils.getAppNames().then((apps: string[]) => {
             apps.forEach(appName => {
                 this.app.use('/' + appName, express.static(__dirname + '/' + appName + '/public'));
             });
