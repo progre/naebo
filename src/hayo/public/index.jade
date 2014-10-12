@@ -4,114 +4,115 @@ title はよつくって - 作ってほしいもの、必要とされている�
 meta(name='description', content='作ってほしいもの、必要とされているものの共有サイト')
 meta(name='keywords', content='みんなでユーチューブ！')
 link(href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css", rel="stylesheet")
-a(href='https://github.com/progre/naebo')
-  img(style='position: absolute; top: 0; right: 0; border: 0; z-index: 10000;', src='https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67', alt='Fork me on GitHub', data-canonical-src='https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png')
-header(style='margin-bottom: 51px')
-  nav.navbar.navbar-default.navbar-fixed-top(role='navigation')
-    .navbar-header
-        a.navbar-brand(href='/')
-          | はよつくって
-main
-  .jumbotron
-    .container
-      h1 はよつくって
-      p
-        | 作ってほしいもの、必要とされているものを共有しましょう
-      a.twitter-share-button(href='https://twitter.com/share', data-text='作ってほしいもの、必要とされているものを共有しましょう はよつくって', data-via='progremaster', data-size='large') Tweet
-      script !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
-  .container
-    .page-header
-      h1 実現したネタ
-    ul.list-group
-      li.list-group-item
-        div <a href='#'>@progremaster</a> さんのネタを <a href='#'>@progremaster</a> さんが実現しました
-        h2.col-xs-12 <a href='#'>最高に面白いゲーム</a> <small>を作ったよ！</small>
-        p.text-right
-          small 2014年10月11日 18:31
-    .page-header
-      h1 投稿されたネタ
-    div
-      //- newticket
-      .text-center(style='margin-bottom: 1em;')
-        button.btn.btn-default.btn-block(title='ネタを作成します', style='font-weight: bold;') +
-    ul.list-group
-      li.list-group-item
-        div <a href='#'>@progremaster</a> さんから
-        h2.col-xs-12 最高に面白いゲーム <small>を作って！</small>
-        p.text-right
-          small 2014年10月11日 18:31
-        .text-right
-          button.btn.btn-default(style='margin-left: 1em;') やるよ！
-          button.btn.btn-primary(style='margin-left: 1em;')
-            | いいね！
-          .badge 100
-        .panel.panel-default(style='margin-top: 1em;')
-          .panel-body
-            form.form-inline.text-right(role='form', ng-submit='')
-              .form-group @progremaster 「最高に面白いゲーム を作るよ！」
-              .checkbox(style='margin-left: 1em;')
-                label
-                  input(type='checkbox')
-                  span(style='margin-left: 0.5em;') ツイートする
-              .form-group(style='margin-left: 1em;')
-                button.btn.btn-default(ng-click='') 閉じる
-                input.btn.btn-primary(style='margin-left: 1em;', type='submit', value='宣言')
-    div
-      .text-center
-        button.btn.btn-default.btn-block(title='ネタを作成します', style='font-weight: bold;') +
-      newticket
-    .page-header
-      h1 拾われたネタ
-    ul.list-group
-      li.list-group-item
-        div <a href='#'>@progremaster</a> さんのネタを <a href='#'>@progremaster</a> さんが作っています
-        h2.col-xs-12 最高に面白いゲーム <small>を作るよ！</small>
-        p.text-right
-          small 2014年10月11日 18:31
-        .text-right
-          button.btn.btn-default(style='margin-left: 1em;') 無理でした
-          button.btn.btn-primary(style='margin-left: 1em;') できたよ！
-          button.btn.btn-primary(style='margin-left: 1em;') はよ！
-          .badge 100
-        .panel.panel-default(style='margin-top: 1em;')
-          .panel-body
-            form(role='form', ng-submit='')
-              .form-group
-                | @progremaster 「最高に面白いゲーム を作ったよ！」
-              .form-group
-                input.form-control(type='text', placeholder='http://…')
-              .text-right
-                ul.list-inline
-                  li.checkbox(style='margin-left: 1em; margin-top: 0;')
-                    label
-                      input(type='checkbox')
-                      | ツイートする
-                  li(style='padding-right: 0;')
-                    button.btn.btn-default(ng-click='') 閉じる
-                    input.btn.btn-primary(style='margin-left: 1em;', type='submit', value='完了')
-footer.container-fluid(style='margin-top: 2em; margin-bottom: 1em;')
-  .row
-    .col-md-12
-      .pull-right
+body(style='background-image: url("#{appRoot}img/geometry2.png"); background-attachment: fixed;')
+  a(href='https://github.com/progre/naebo')
+    img(style='position: absolute; top: 0; right: 0; border: 0; z-index: 10000;', src='https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67', alt='Fork me on GitHub', data-canonical-src='https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png')
+  header(style='margin-bottom: 51px')
+    nav.navbar.navbar-default.navbar-fixed-top(role='navigation')
+      .navbar-header
+          a.navbar-brand(href='/')
+            | はよつくって
+  main
+    .jumbotron
+      .container
+        h1 はよつくって
         p
-          span.text-muted.pull-right © <a href='https://twitter.com/progremaster'>ぷろぐれ</a>. All rights reserved
-      p
-        span.text-muted このサイトを利用して発生したいかなる問題もサイト運営者は責任を負いません。
+          | 作ってほしいもの、必要とされているものを共有しましょう
+        a.twitter-share-button(href='https://twitter.com/share', data-text='作ってほしいもの、必要とされているものを共有しましょう はよつくって', data-via='progremaster', data-size='large') Tweet
+        script !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
+    .container
+      .page-header
+        h1 実現したネタ
+      ul.list-group
+        li.list-group-item
+          div <a href='#'>@progremaster</a> さんのネタを <a href='#'>@progremaster</a> さんが実現しました
+          h2.col-xs-12 <a href='#'>最高に面白いゲーム</a> <small>を作ったよ！</small>
+          p.text-right
+            small 2014年10月11日 18:31
+      .page-header
+        h1 投稿されたネタ
+      div
+        //- newticket
+        .text-center(style='margin-bottom: 1em;')
+          button.btn.btn-default.btn-block(title='ネタを作成します', style='font-weight: bold;') +
+      ul.list-group
+        li.list-group-item
+          div <a href='#'>@progremaster</a> さんから
+          h2.col-xs-12 最高に面白いゲーム <small>を作って！</small>
+          p.text-right
+            small 2014年10月11日 18:31
+          .text-right
+            button.btn.btn-default(style='margin-left: 1em;') やるよ！
+            button.btn.btn-primary(style='margin-left: 1em;')
+              | いいね！
+            .badge 100
+          .panel.panel-default(style='margin-top: 1em;')
+            .panel-body
+              form.form-inline.text-right(role='form', ng-submit='')
+                .form-group @progremaster 「最高に面白いゲーム を作るよ！」
+                .checkbox(style='margin-left: 1em;')
+                  label
+                    input(type='checkbox')
+                    span(style='margin-left: 0.5em;') ツイートする
+                .form-group(style='margin-left: 1em;')
+                  button.btn.btn-default(ng-click='') 閉じる
+                  input.btn.btn-primary(style='margin-left: 1em;', type='submit', value='宣言')
+      div
+        .text-center
+          button.btn.btn-default.btn-block(title='ネタを作成します', style='font-weight: bold;') +
+        newticket
+      .page-header
+        h1 拾われたネタ
+      ul.list-group
+        li.list-group-item
+          div <a href='#'>@progremaster</a> さんのネタを <a href='#'>@progremaster</a> さんが作っています
+          h2.col-xs-12 最高に面白いゲーム <small>を作るよ！</small>
+          p.text-right
+            small 2014年10月11日 18:31
+          .text-right
+            button.btn.btn-default(style='margin-left: 1em;') 無理でした
+            button.btn.btn-primary(style='margin-left: 1em;') できたよ！
+            button.btn.btn-primary(style='margin-left: 1em;') はよ！
+            .badge 100
+          .panel.panel-default(style='margin-top: 1em;')
+            .panel-body
+              form(role='form', ng-submit='')
+                .form-group
+                  | @progremaster 「最高に面白いゲーム を作ったよ！」
+                .form-group
+                  input.form-control(type='text', placeholder='http://…')
+                .text-right
+                  ul.list-inline
+                    li.checkbox(style='margin-left: 1em; margin-top: 0;')
+                      label
+                        input(type='checkbox')
+                        | ツイートする
+                    li(style='padding-right: 0;')
+                      button.btn.btn-default(ng-click='') 閉じる
+                      input.btn.btn-primary(style='margin-left: 1em;', type='submit', value='完了')
+  footer.container-fluid(style='margin-top: 2em; margin-bottom: 1em;')
+    .row
+      .col-md-12
+        .pull-right
+          p
+            span.text-muted.pull-right © <a href='https://twitter.com/progremaster'>ぷろぐれ</a>. All rights reserved
+        p
+          span.text-muted このサイトを利用して発生したいかなる問題もサイト運営者は責任を負いません。
 
-script(src='//code.jquery.com/jquery-2.1.0.min.js')
-script(src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js")
-if debug
-  script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.3/angular.js')
-  script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.3/angular-route.js')
-  script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.3/angular-animate.js')
-  script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.3/angular-cookies.js')
-else
-  script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.3/angular.min.js')
-  script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.3/angular-route.min.js')
-  script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.3/angular-animate.min.js')
-  script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.3/angular-cookies.min.js')
-if debug
-  script(src='//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.14/require.min.js', data-main='#{appRoot}javascript/config')
-else
-  script(src='//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.14/require.min.js', data-main='#{appRoot}js/main')
-script (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create', 'UA-43486767-11', 'auto');ga('send', 'pageview');
+  script(src='//code.jquery.com/jquery-2.1.0.min.js')
+  script(src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js")
+  if debug
+    script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.3/angular.js')
+    script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.3/angular-route.js')
+    script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.3/angular-animate.js')
+    script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.3/angular-cookies.js')
+  else
+    script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.3/angular.min.js')
+    script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.3/angular-route.min.js')
+    script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.3/angular-animate.min.js')
+    script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.3/angular-cookies.min.js')
+  if debug
+    script(src='//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.14/require.min.js', data-main='#{appRoot}javascript/config')
+  else
+    script(src='//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.14/require.min.js', data-main='#{appRoot}js/main')
+  script (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create', 'UA-43486767-11', 'auto');ga('send', 'pageview');
