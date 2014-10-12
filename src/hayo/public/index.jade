@@ -71,8 +71,7 @@ main
         .text-right
           button.btn.btn-default(style='margin-left: 1em;') 無理でした
           button.btn.btn-primary(style='margin-left: 1em;') できたよ！
-          button.btn.btn-primary(style='margin-left: 1em;')
-            | はよ！
+          button.btn.btn-primary(style='margin-left: 1em;') はよ！
           .badge 100
         .panel.panel-default(style='margin-top: 1em;')
           .panel-body
@@ -87,7 +86,7 @@ main
                     label
                       input(type='checkbox')
                       | ツイートする
-                  li
+                  li(style='padding-right: 0;')
                     button.btn.btn-default(ng-click='') 閉じる
                     input.btn.btn-primary(style='margin-left: 1em;', type='submit', value='完了')
 
