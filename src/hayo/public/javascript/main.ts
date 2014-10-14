@@ -12,8 +12,7 @@ app.config([
     }
 ]);
 
-app.directive('ticket', directives.simple(appRoot, 'ticket'));
-app.directive('newticket', directives.simple(appRoot, 'newticket'));
-app.directive('catchedticket', directives.simple(appRoot, 'catchedticket'));
+app.directive('opentickets', directives.simple(appRoot, 'opentickets'));
+app.directive('inprogresstickets', directives.simple(appRoot, 'inprogresstickets'));
 
 angular.bootstrap(document, ['app']);

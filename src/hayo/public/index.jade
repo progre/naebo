@@ -4,6 +4,7 @@ title はよつくって - 作ってほしいもの、必要とされている�
 meta(name='description', content='作ってほしいもの、必要とされているものの共有サイト')
 meta(name='keywords', content='みんなでユーチューブ！')
 link(href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css", rel="stylesheet")
+link(href="#{appRoot}css/style.css", rel="stylesheet")
 body(style='background-image: url("#{appRoot}img/geometry2.png"); background-attachment: fixed;')
   a(href='https://github.com/progre/naebo')
     img(style='position: absolute; top: 0; right: 0; border: 0; z-index: 10000;', src='https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67', alt='Fork me on GitHub', data-canonical-src='https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png')
@@ -31,65 +32,10 @@ body(style='background-image: url("#{appRoot}img/geometry2.png"); background-att
             small 2014年10月11日 18:31
       .page-header
         h1 投稿されたネタ
-      div
-        //- newticket
-        .text-center(style='margin-bottom: 1em;')
-          button.btn.btn-default.btn-block(title='ネタを作成します', style='font-weight: bold;') +
-      ul.list-group
-        li.list-group-item
-          div <a href='#'>@progremaster</a> さんから
-          h2.col-xs-12 最高に面白いゲーム <small>を作って！</small>
-          p.text-right
-            small 2014年10月11日 18:31
-          .text-right
-            button.btn.btn-default(style='margin-left: 1em;') やるよ！
-            button.btn.btn-primary(style='margin-left: 1em;')
-              | いいね！
-            .badge 100
-          .panel.panel-default(style='margin-top: 1em;')
-            .panel-body
-              form.form-inline.text-right(role='form', ng-submit='')
-                .form-group @progremaster 「最高に面白いゲーム を作るよ！」
-                .checkbox(style='margin-left: 1em;')
-                  label
-                    input(type='checkbox')
-                    span(style='margin-left: 0.5em;') ツイートする
-                .form-group(style='margin-left: 1em;')
-                  button.btn.btn-default(ng-click='') 閉じる
-                  input.btn.btn-primary(style='margin-left: 1em;', type='submit', value='宣言')
-      div
-        .text-center
-          button.btn.btn-default.btn-block(title='ネタを作成します', style='font-weight: bold;') +
-        newticket
+      opentickets
       .page-header
         h1 拾われたネタ
-      ul.list-group
-        li.list-group-item
-          div <a href='#'>@progremaster</a> さんのネタを <a href='#'>@progremaster</a> さんが作っています
-          h2.col-xs-12 最高に面白いゲーム <small>を作るよ！</small>
-          p.text-right
-            small 2014年10月11日 18:31
-          .text-right
-            button.btn.btn-default(style='margin-left: 1em;') 無理でした
-            button.btn.btn-primary(style='margin-left: 1em;') できたよ！
-            button.btn.btn-primary(style='margin-left: 1em;') はよ！
-            .badge 100
-          .panel.panel-default(style='margin-top: 1em;')
-            .panel-body
-              form(role='form', ng-submit='')
-                .form-group
-                  | @progremaster 「最高に面白いゲーム を作ったよ！」
-                .form-group
-                  input.form-control(type='text', placeholder='http://…')
-                .text-right
-                  ul.list-inline
-                    li.checkbox(style='margin-left: 1em; margin-top: 0;')
-                      label
-                        input(type='checkbox')
-                        | ツイートする
-                    li(style='padding-right: 0;')
-                      button.btn.btn-default(ng-click='') 閉じる
-                      input.btn.btn-primary(style='margin-left: 1em;', type='submit', value='完了')
+      inprogresstickets
   footer.container-fluid(style='margin-top: 2em; margin-bottom: 1em;')
     .row
       .col-md-12

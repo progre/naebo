@@ -1,0 +1,59 @@
+div
+  div
+    .panel.panel-default.animate188px(ng-show='isOpenTopNewTicket')
+      .panel-body
+        form(role='form', ng-submit='')
+          ul.list-inline
+            li @progremaster さんのネタ
+            li.checkbox(style='margin-left: 1em; margin-top: 0;')
+              label
+                input(type='checkbox')
+                | 作成時にツイートする
+          .form-group
+            input.form-control(type='text', placeholder='アイディア')
+          .form-group.text-right を作って！
+          .text-right
+            button.btn.btn-default(ng-click='isOpenTopNewTicket = false') 閉じる
+            input.btn.btn-primary(style='margin-left: 1em;', type='submit', value='作成')
+    .text-center.animate34px(style='margin-bottom: 1em;', ng-hide='isOpenTopNewTicket')
+      button.btn.btn-default.btn-block(title='ネタを作成します', style='font-weight: bold;', ng-click='isOpenTopNewTicket = true') +
+  ul.list-group
+    li.list-group-item
+      div <a href='#'>@progremaster</a> さんから
+      h2.col-xs-12 最高に面白いゲーム <small>を作って！</small>
+      p.text-right
+        small 2014年10月11日 18:31
+      .text-right
+        button.btn.btn-default(style='margin-left: 1em;', ng-class='{active: isOpenStartProgress}', ng-click='isOpenStartProgress = !isOpenStartProgress') やるよ！
+        button.btn.btn-primary(style='margin-left: 1em;')
+          | いいね！
+        .badge 100
+      .panel.panel-default.animate64px(style='margin-top: 1em;', ng-show='isOpenStartProgress')
+        .panel-body
+          form.form-inline.text-right(role='form', ng-submit='')
+            .form-group @progremaster 「最高に面白いゲーム を作るよ！」
+            .checkbox(style='margin-left: 1em;')
+              label
+                input(type='checkbox')
+                span(style='margin-left: 0.5em;') ツイートする
+            .form-group(style='margin-left: 1em;')
+              button.btn.btn-default(ng-click='isOpenStartProgress = false') 閉じる
+              input.btn.btn-primary(style='margin-left: 1em;', type='submit', value='宣言')
+  div
+    .text-center.animate34px(ng-hide='isOpenBottomNewTicket')
+      button.btn.btn-default.btn-block(title='ネタを作成します', style='font-weight: bold;', ng-click='isOpenBottomNewTicket = true') +
+    .panel.panel-default.animate188px(ng-show='isOpenBottomNewTicket')
+      .panel-body
+        form(role='form', ng-submit='')
+          ul.list-inline
+            li @progremaster さんのネタ
+            li.checkbox(style='margin-left: 1em; margin-top: 0;')
+              label
+                input(type='checkbox')
+                | 作成時にツイートする
+          .form-group
+            input.form-control(type='text', placeholder='アイディア')
+          .form-group.text-right を作って！
+          .text-right
+            button.btn.btn-default(ng-click='isOpenBottomNewTicket = false') 閉じる
+            input.btn.btn-primary(style='margin-left: 1em;', type='submit', value='作成')
