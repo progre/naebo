@@ -6,8 +6,8 @@ var session: any = require('express-session');
 var cookieParser: any = require('cookie-parser');
 var livereload: any = require('connect-livereload');
 import log4js = require('log4js');
-import SubApplication = require('./subapplication');
 var fileUtils = require('./fileutils');
+import promises = require('./util/promises');
 import sample = require('./sample/index');
 import m2l = require('./m2l/index');
 
@@ -30,16 +30,24 @@ class HttpServer {
 
         this.app.use(express.static(__dirname + '/public'));
 
-        fileUtils.getAppNames().then((apps: string[]) => {
-            apps.forEach(appName => {
+        (<Promise<string[]>>fileUtils.getAppNames())
+            .then(promises.each((appName: string) => {
                 this.app.use('/' + appName, express.static(__dirname + '/' + appName + '/public'));
+                var modulePath = './' + appName;
+                var modul = tryRequire(modulePath);
+                if (modul == null) {
+                    return;
+                }
+                for (var key in modul) {
+                    this.app.resource(appName + '/api/1/' + key, modul[key]);
+                }
+            }))
+            .then(() => {
+                var server = this.app.listen(port, localIp, () => {
+                    logger.info('Listening on port %d', server.address().port);
+                });
+                log4js.getLogger('console').debug('debug mode.');// log4jsからコンソールへ何かしらの出力をしないと、grunt serveのwatchが効かなくなる
             });
-
-            var server = this.app.listen(port, localIp, () => {
-                logger.info('Listening on port %d', server.address().port);
-            });
-            log4js.getLogger('console').debug('debug mode.');// log4jsからコンソールへ何かしらの出力をしないと、grunt serveのwatchが効かなくなる
-        });
     }
 }
 
@@ -68,4 +76,12 @@ function log(req: express.Request, res: express.Response, next: () => void) {
 function useSession(app: express.Express) {
     app.use(cookieParser('Heart Break'));
     app.use(session({ secret: 'Miserable Fate' }));
+}
+
+function tryRequire(path: string) {
+    try {
+        return require(path);
+    } catch (e) {
+        return null;
+    }
 }

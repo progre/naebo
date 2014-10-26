@@ -1,6 +1,7 @@
 /// <reference path="../typings/tsd.d.ts"/>
 /// <reference path="../typings/log4js.d.ts"/>
-require('es6-promise').polyfill();
+/// <reference path="../typings/sequelize.d.ts"/>
+require('es6-shim');
 require('source-map-support').install();
 import fs = require('fs');
 import log4js = require('log4js');

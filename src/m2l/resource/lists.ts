@@ -15,7 +15,7 @@ export function show(req: express.Request, res: express.Response) {
 
 function getScreenNames(twitter: any, screenName: string, slug: string): Promise<string[]> {
     var url = 'https://api.twitter.com/1.1/lists/members.json?skip_status=1&slug=' + slug + '&owner_screen_name=' + screenName;
-    return new Promise((resolve, reject) => {
+    return new Promise<string[]>((resolve, reject) => {
         function recursion(cursor: number, screenNames: string[], callback: (screenNames: string[]) => void) {
             twitter.get(url + '&cursor=' + cursor, (json: any) => {
                 if (json.statusCode === 404) {
@@ -33,7 +33,7 @@ function getScreenNames(twitter: any, screenName: string, slug: string): Promise
                 recursion(nextCursor, screenNames, callback);
             });
         }
-        recursion(-1, [], resolve);
+        recursion(-1, [], <any>resolve);
     });
 }
 

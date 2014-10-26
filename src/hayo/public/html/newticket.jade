@@ -1,14 +1,14 @@
-.panel.panel-default.animate188px(ng-show='isOpen')
+.panel.panel-default.anim.anim188px(ng-show='isOpen')
   .panel-body
     form(role='form', ng-submit='command.execute()')
       ul.list-inline
         li @progremaster さんのネタ
         li.checkbox(style='margin-left: 1em; margin-top: 0;')
           label
-            input(type='checkbox')
+            input(type='checkbox', ng-model='isPost')
             | 作成時にツイートする
       .form-group
-        input.form-control(type='text', placeholder='アイディア', required, ng-model='title')
+        input.form-control(type='text', placeholder='アイディア', ng-model='title', required)
       .form-group.text-right を作って！
       .text-right
         button.btn.btn-default(type='button', ng-click='close()') 閉じる

@@ -1,26 +1,35 @@
-.animate34px {
-  transition: all linear 0.125s;
-  overflow: hidden;
-  height: 34px;
-}
-.animate64px {
-  transition: all linear 0.125s;
-  overflow: hidden;
-  height: 64px;
-}
-.animate150px {
-  transition: all linear 0.125s;
-  overflow: hidden;
-  height: 150px;
-}
-.animate188px {
-  transition: all linear 0.125s;
-  overflow: hidden;
-  height: 188px;
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
 }
 
-.animate34px.ng-hide, .animate64px.ng-hide, .animate150px.ng-hide, .animate188px.ng-hide {
+.anim,
+.listanim.ng-move, .listanim.ng-enter, .listanim.ng-leave
+{
+  transition: all linear 0.125s;
+  overflow: hidden;
+}
+
+.anim.ng-hide,
+.listanim.ng-leave.ng-leave-active, .listanim.ng-move, .listanim.ng-enter
+{
   height: 0;
   margin: 0;
   padding: 0;
+}
+
+.anim34px {
+  height: 34px;
+}
+.anim64px {
+  height: 64px;
+}
+.anim150px {
+  height: 150px;
+}
+.anim188px {
+  height: 188px;
+}
+
+.anim148px.ng-leave, .anim148px.ng-move.ng-move-active, .anim148px.ng-enter.ng-enter-active {
+  height: 148px;
 }

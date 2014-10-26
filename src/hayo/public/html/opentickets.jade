@@ -1,14 +1,16 @@
 div
   div(ng-controller='NewTicketController')
     newticket
-    .text-center.animate34px(style='margin-bottom: 1em;', ng-hide='isOpen')
+    .text-center.anim.anim34px(style='margin-bottom: 1em;', ng-hide='isOpen')
       button.btn.btn-default.btn-block(title='ネタを作成します', style='font-weight: bold;', ng-click='open()') +
   ul.list-group
-    li.list-group-item(ng-repeat='ticket in openTickets', ng-class='{ disabled: ticket.deletedAt != null }')
+    li.list-group-item(ng-hide='true')
+      | ⏳ 読み込み中...
+    li.list-group-item.listanim.anim148px(ng-repeat='ticket in openTickets', ng-class='{ disabled: ticket.deletedAt != null }', ng-cloak)
       div <a ng-href='userPageURL'>{{ticket.username}}</a> さんから
       h2.col-xs-12 {{ticket.title}} <small>を作って！</small>
       p.text-right
-        small {{ticket.date | dateToDisplay}}
+        small {{ticket.createdAt | dateToDisplay}}
       .text-right
         span(ng-show='ticket.deletedAt == null')
           button.btn.btn-danger(ng-click='deleteCommand.execute(ticket)', ng-disabled='!deleteCommand.canExecute(ticket)') 削除
@@ -18,7 +20,7 @@ div
           .badge {{ticket.likes}}
         span(ng-show='ticket.deletedAt != null')
           button.btn.btn-default(ng-click='revertCommand.execute(ticket)', ng-disabled='!revertCommand.canExecute(ticket)') 元に戻す
-      .panel.panel-default.animate64px(style='margin-top: 1em;', ng-show='isOpenStartProgress')
+      .panel.panel-default.anim.anim64px(style='margin-top: 1em;', ng-show='isOpenStartProgress')
         .panel-body
           form.form-inline.text-right(role='form', ng-submit='')
             .form-group @progremaster 「{{ticket.title}} を作るよ！」
@@ -30,6 +32,6 @@ div
               button.btn.btn-default(ng-click='isOpenStartProgress = false') 閉じる
               input.btn.btn-primary(style='margin-left: 1em;', type='submit', value='宣言')
   div(ng-controller='NewTicketController')
-    .text-center.animate34px(ng-hide='isOpen')
+    .text-center.anim.anim34px(ng-hide='isOpen')
       button.btn.btn-default.btn-block(title='ネタを作成します', style='font-weight: bold;', ng-click='open()') +
     newticket

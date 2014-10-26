@@ -1,5 +1,5 @@
 /// <reference path="./typings/tsd.d.ts"/>
-global.Promise = global.Promise || require('es6-promise').Promise;
+require('es6-shim');
 var merge = require('event-stream').merge;
 var runSequence = require('run-sequence');
 var gulp = require('gulp');

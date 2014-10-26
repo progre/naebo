@@ -8,9 +8,6 @@
     "node/node.d.ts": {
       "commit": "0b87ad988f46378342654384728c3a388e6d7178"
     },
-    "es6-promise/es6-promise.d.ts": {
-      "commit": "0b87ad988f46378342654384728c3a388e6d7178"
-    },
     "express/express.d.ts": {
       "commit": "0b87ad988f46378342654384728c3a388e6d7178"
     },
@@ -22,6 +19,9 @@
     },
     "angularjs/angular-route.d.ts": {
       "commit": "0b87ad988f46378342654384728c3a388e6d7178"
+    },
+    "es6-promise/es6-promise.d.ts": {
+      "commit": "4dd796bb15c51e5bc0efd74605fbc9de46773ca5"
     }
   }
 }

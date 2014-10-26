@@ -9,12 +9,12 @@ ul.list-group
       button.btn.btn-primary(style='margin-left: 1em;', ng-class='{active: isOpenCreated}', ng-click='isOpenCreated = !isOpenCreated; isOpenDropout = false;') できたよ！
       button.btn.btn-primary(style='margin-left: 1em;') はよ！
       .badge 100
-    .panel.panel-default.animate64px(style='margin-top: 1em;', ng-show='isOpenDropout')
+    .panel.panel-default.anim.anim64px(style='margin-top: 1em;', ng-show='isOpenDropout')
       .panel-body
         .text-right
           button.btn.btn-default(ng-click='isOpenDropout = false') 閉じる
           button.btn.btn-primary(style='margin-left: 1em;') 投稿されたネタに戻す
-    .panel.panel-default.animate150px(style='margin-top: 1em;', ng-show='isOpenCreated')
+    .panel.panel-default.anim.anim150px(style='margin-top: 1em;', ng-show='isOpenCreated')
       .panel-body
         form(role='form', ng-submit='')
           .form-group
