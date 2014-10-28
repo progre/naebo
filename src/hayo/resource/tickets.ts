@@ -1,10 +1,18 @@
-import express = require('express');
+ï»¿import express = require('express');
+import Database = require('../infrastructure/database');
 
-var db: any[] = [];
-// http://apps.prgrssv.net/hayo/api/1/tickets/
-/** ˆê—— */
+var database = new Database();
+database.initialize()
+    .catch(e => {
+        console.error(e);
+    });
+
 export function index(req: express.Request, res: express.Response) {
-    res.json(db);
+    database.tickets()
+        .then(tickets => {
+            console.log(JSON.stringify(tickets))
+            res.json(tickets);
+        });
 }
 
 export function create(req: express.Request, res: express.Response) {
@@ -15,25 +23,16 @@ export function create(req: express.Request, res: express.Response) {
         res.send(400);
         return;
     }
-    db.unshift({
-        id: Date.now(),
-        title: json.title,
-        username: '@progremaster',
-        likes: 0,
-        createdAt: new Date(),
-        deletedAt: null
-    });
-    if (json.isPost) {
-        // twitter‚ÉPost‚·‚é
-    }
-    res.json(201, db.map(x => ({
-        id: x.id,
-        title: x.title,
-        username: x.username,
-        likes: x.likes,
-        createdAt: x.createdAt.getTime(),
-        deletedAt: x.deletedat == null ? null : x.deletedat.getTime()
-    })));
+    database.putTicket(json.title)
+        .then(() => {
+            if (json.isPost) {
+                // twitterã«Postã™ã‚‹â˜€
+            }
+            return database.tickets();
+        })
+        .then(tickets => {
+            res.json(201, tickets);
+        });
 }
 
 export function update(req: express.Request, res: express.Response) {

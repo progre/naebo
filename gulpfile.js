@@ -5,16 +5,15 @@ var runSequence = require('run-sequence');
 var gulp = require('gulp');
 var styl = require('gulp-styl');
 var server = require('gulp-express');
-var clean = require('gulp-clean');
+var del = require('del');
 require('require-dir')('./gulp');
 
 gulp.task('default', function () {
     runSequence('build', 'serve');
 });
 
-gulp.task('clean', function () {
-    return gulp.src(['app', '!dist/.git/**', 'dist/**/*'], { read: false })
-        .pipe(clean());
+gulp.task('clean', function (callback) {
+    del(['app', '!dist/.git/**', 'dist/**/*'], callback);
 });
 
 gulp.task('build', ['ts', 'jade', 'styl', 'copy']);

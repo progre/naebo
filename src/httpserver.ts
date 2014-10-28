@@ -30,7 +30,7 @@ class HttpServer {
 
         this.app.use(express.static(__dirname + '/public'));
 
-        (<Promise<string[]>>fileUtils.getAppNames())
+        (<Promise<string[]>>fileUtils.getAppNames('app'))
             .then(promises.each((appName: string) => {
                 this.app.use('/' + appName, express.static(__dirname + '/' + appName + '/public'));
                 var modulePath = './' + appName;
