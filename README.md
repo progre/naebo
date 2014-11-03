@@ -12,7 +12,8 @@ How to build
   }
 }
 ```
-2. $ npm install -g gulp tsd
-3. $ npm install
-4. $ tsd reinstall -so
-5. $ gulp
+2. $ git submodule init
+3. $ git submodule update
+4. $ npm install -g gulp
+5. $ npm install
+6. $ gulp
