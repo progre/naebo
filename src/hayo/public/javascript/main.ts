@@ -18,12 +18,6 @@ app.directive('opentickets', directives.simple(appRoot, 'opentickets'));
 app.directive('inprogresstickets', directives.simple(appRoot, 'inprogresstickets'));
 app.directive('newticket', directives.simple(appRoot, 'newticket'));
 
-interface ICommand {
-    execute(): void;
-    canExecute(): boolean;
-    isExecuting(): boolean;
-}
-
 app.filter('dateToDisplay', [() => (date: Date) => {
     if (date == null)
         return '';
@@ -37,10 +31,21 @@ function minutes(min: number) {
     return min < 10 ? '0' + min : min.toString();
 }
 
-app.controller('IndexController', ['$timeout', '$http', '$scope',
-    ($timeout: ng.ITimeoutService, $http: ng.IHttpService, $scope: any) => {
+app.controller('IndexController', ['$timeout', '$http', '$scope', '$window',
+    ($timeout: ng.ITimeoutService, $http: ng.IHttpService, $scope: any, $window: ng.IWindowService) => {
+        var socket: SocketIOClient.Socket = (<any>io).connect({
+            path: '/hayo/socket.io'
+        });
+        socket.on('connect', function () {
+            console.log('connected');
+        });
+        console.log(socket);
         var database = new Database(apiRoot, $http);
         $scope.openTickets = database.cachedTickets();
+
+        $scope.login = () => {
+            $window.location.href = '../auth/twitter/hayo/';
+        };
 
         var deleteExecutings: any[] = [];
         $scope.deleteCommand = {
@@ -96,9 +101,5 @@ app.controller('NewTicketController', ['$http', '$scope',
             }
         };
     }]);
-
-
-
-
 
 angular.bootstrap(document, ['app']);

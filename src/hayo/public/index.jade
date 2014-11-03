@@ -5,14 +5,40 @@ meta(name='description', content='作ってほしいもの、必要とされて�
 meta(name='keywords', content='みんなでユーチューブ！')
 link(href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css", rel="stylesheet")
 link(href="#{appRoot}css/style.css", rel="stylesheet")
+base(href='/hayo/')
 body(style='background-image: url("#{appRoot}img/geometry2.png"); background-attachment: fixed;', ng-controller='IndexController')
-  a(href='https://github.com/progre/naebo')
+  a.hidden-xs(href='https://github.com/progre/naebo')
     img(style='position: absolute; top: 0; right: 0; border: 0; z-index: 10000;', src='https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67', alt='Fork me on GitHub', data-canonical-src='https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png')
   header(style='margin-bottom: 51px')
     nav.navbar.navbar-default.navbar-fixed-top(role='navigation')
       .navbar-header
-          a.navbar-brand(href='/')
-            | はよつくって
+        button.navbar-toggle.collapsed(type='button', data-toggle='collapse', data-target='#bs-example-navbar-collapse-1')
+          span.sr-only Toggle navigation
+          span.icon-bar
+          span.icon-bar
+          span.icon-bar
+        a.navbar-brand(href='/') 〈
+        a.navbar-brand(href='#') はよつくって
+      #bs-example-navbar-collapse-1.collapse.navbar-collapse
+        ul.nav.navbar-nav.pull-right
+          li
+            a(href='', ng-click='login()') ログイン
+          //li.dropdown
+            a.dropdown-toggle(href='#', data-toggle='dropdown')
+              | ぷろぐれ
+              span.caret
+            ul.dropdown-menu(role='menu')
+              li
+                a(href='#') Action
+              li
+                a(href='#') Another action
+              li
+                a(href='#') Something else here
+              li.divider
+              li
+                a(href='#') Separated link
+          li(style='width: 150px')
+            //- ribbon margin
   main
     .jumbotron
       .container
@@ -44,6 +70,8 @@ body(style='background-image: url("#{appRoot}img/geometry2.png"); background-att
             span.text-muted.pull-right © <a href='https://twitter.com/progremaster'>ぷろぐれ</a>. All rights reserved
         p
           span.text-muted このサイトを利用して発生したいかなる問題もサイト運営者は責任を負いません。
+  a(href='/auth/twitter')
+    | hog|
 
   script(src='//code.jquery.com/jquery-2.1.0.min.js')
   script(src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js")
@@ -57,6 +85,7 @@ body(style='background-image: url("#{appRoot}img/geometry2.png"); background-att
     script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0/angular-route.min.js')
     script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0/angular-animate.min.js')
     script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0/angular-cookies.min.js')
+  script(src='https://cdn.socket.io/socket.io-1.2.0.js')
   if debug
     script(src='//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.14/require.min.js', data-main='#{appRoot}javascript/config')
   else
