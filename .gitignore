@@ -9,9 +9,6 @@ tmp/
 *.js
 *.map
 
-typings/*/**/*.d.ts
-typings/tsd.d.ts
-
 secret.json
 
 !gulpfile.js

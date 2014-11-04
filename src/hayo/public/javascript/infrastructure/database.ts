@@ -1,29 +1,31 @@
-class Database {
-    constructor(private apiRoot: string, private $http: ng.IHttpService) {
+import EventEmitter2 = require('eventemitter2');
+
+class Database extends EventEmitter2 {
+    private socket = io({ path: '/hayo/socket.io' });
+    constructor(
+        private apiRoot: string) {
+        super();
+        this.socket.on('connect', () => {
+            console.log('connected');
+        });
+        this.socket.on('tickets', (tickets: any[]) => {
+            console.log(tickets);
+            super.emit('updated', (openTickets: any[]) => {
+                merge(openTickets, tickets.map(fromDTO));
+                sessionStorage.setItem('openTickets', toStorageData(openTickets));
+            });
+        });
     }
 
     cachedTickets() {
         return fromStorageData(sessionStorage.getItem('openTickets'));
     }
 
-    updateTickets(openTickets: any[]) {
-        return this.$http.get(this.apiRoot + 'tickets/')
-            .then((result: { data: any[] }) => {
-                merge(openTickets, result.data.map(fromDTO));
-                sessionStorage.setItem('openTickets', toStorageData(openTickets));
-            });
-    }
-
-    putTicket(openTickets: any[], title: string, isPost: boolean) {
-        return this.$http.post(this.apiRoot + 'tickets/',
-            {
-                title: title,
-                isPost: isPost
-            })
-            .then((result: { data: any[] }) => {
-                merge(openTickets, result.data.map(fromDTO));
-                sessionStorage.setItem('openTickets', toStorageData(openTickets));
-            });
+    putTicket($http: ng.IHttpService, title: string, isPost: boolean) {
+        return $http.post(this.apiRoot + 'tickets/', {
+            title: title,
+            isPost: isPost
+        });
     }
 }
 

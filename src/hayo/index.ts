@@ -1,15 +1,13 @@
-/// <reference path="../../typings/tsd.d.ts" />
-import tickets = require('./resource/tickets');
-import socketIo = require('socket.io');
+/// <reference path="../tsd.d.ts" />
 
-export = resources;
-var resources = {
-    tickets: tickets,
-    'socket.io': (io: socketIo.Socket) => {
-        io.on('connection', (socket: socketIo.Socket) => {
-            console.log(io.set);
-            //console.log(io.json);
-            //console.log(io.log);
-        });
-    }
-};
+import express = require('express');
+import tickets = require('./resource/tickets');
+import Sockets = require('./infrastructure/sockets');
+
+function index(io: SocketIO.Server) {
+    return {
+        tickets: tickets(io),
+    };
+}
+
+export = index;

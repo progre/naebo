@@ -1,4 +1,4 @@
-/// <reference path="../../../../typings/tsd.d.ts"/>
+/// <reference path="../../../tsd.d.ts"/>
 import m2l = require('./domain/service/m2l');
 
 var root = '/';

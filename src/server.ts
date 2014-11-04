@@ -1,6 +1,4 @@
-/// <reference path="../typings/tsd.d.ts"/>
-/// <reference path="../typings/log4js.d.ts"/>
-/// <reference path="../typings/sequelize.d.ts"/>
+/// <reference path="tsd.d.ts"/>
 require('es6-shim');
 require('source-map-support').install();
 import fs = require('fs');

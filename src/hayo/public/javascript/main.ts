@@ -1,4 +1,5 @@
-﻿/// <reference path="./../../../../typings/tsd.d.ts"/>
+﻿/// <reference path="../../../tsd.d.ts"/>
+
 import directives = require('./module/directives');
 import Database = require('./infrastructure/database');
 
@@ -6,6 +7,8 @@ var appRoot = '/hayo/';
 var apiRoot = appRoot + 'api/1/';
 
 var app = angular.module('app', ['ngAnimate', 'ngCookies']);
+
+var database = new Database(apiRoot);
 
 app.config([
     '$locationProvider',
@@ -33,14 +36,13 @@ function minutes(min: number) {
 
 app.controller('IndexController', ['$timeout', '$http', '$scope', '$window',
     ($timeout: ng.ITimeoutService, $http: ng.IHttpService, $scope: any, $window: ng.IWindowService) => {
-        var socket: SocketIOClient.Socket = (<any>io).connect({
-            path: '/hayo/socket.io'
+        console.log('hoge')
+        database.on('updated', (updateTickets: Function) => {
+            $scope.$apply(() => {
+                updateTickets($scope.openTickets);
+            });
         });
-        socket.on('connect', function () {
-            console.log('connected');
-        });
-        console.log(socket);
-        var database = new Database(apiRoot, $http);
+
         $scope.openTickets = database.cachedTickets();
 
         $scope.login = () => {
@@ -73,13 +75,10 @@ app.controller('IndexController', ['$timeout', '$http', '$scope', '$window',
                 return revertExecutings.indexOf(ticket) < 0;
             }
         };
-
-        database.updateTickets($scope.openTickets);
     }]);
 
 app.controller('NewTicketController', ['$http', '$scope',
     ($http: ng.IHttpService, $scope: any) => {
-        var database = new Database(apiRoot, $http);
         $scope.open = () => $scope.isOpen = true;
         $scope.close = () => $scope.isOpen = false;
 
@@ -89,7 +88,7 @@ app.controller('NewTicketController', ['$http', '$scope',
                 isExecuting = true;
                 var title: string = $scope.title;
                 $scope.title = '';
-                database.putTicket($scope.openTickets, title, $scope.isPost)
+                database.putTicket($http, title, $scope.isPost)
                     .catch(e => { })
                     .then(() => {
                         isExecuting = false;
