@@ -3,10 +3,10 @@ meta(charset='utf-8')
 title はよつくって - 作ってほしいもの、必要とされているものの共有サイト
 meta(name='description', content='作ってほしいもの、必要とされているものの共有サイト')
 meta(name='keywords', content='みんなでユーチューブ！')
-link(href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css", rel="stylesheet")
-link(href="#{appRoot}css/style.css", rel="stylesheet")
-base(href='/hayo/')
-body(style='background-image: url("#{appRoot}img/geometry2.png"); background-attachment: fixed;', ng-controller='IndexController')
+link(href='//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css', rel='stylesheet')
+link(href='css/style.css', rel='stylesheet')
+base(href='#{appRoot}')
+body(style='background-image: url("img/geometry2.png"); background-attachment: fixed;', ng-controller='IndexController')
   a.hidden-xs(href='https://github.com/progre/naebo')
     img(style='position: absolute; top: 0; right: 0; border: 0; z-index: 10000;', src='https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67', alt='Fork me on GitHub', data-canonical-src='https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png')
   header(style='margin-bottom: 51px')
@@ -21,22 +21,19 @@ body(style='background-image: url("#{appRoot}img/geometry2.png"); background-att
         a.navbar-brand(href='#') はよつくって
       #bs-example-navbar-collapse-1.collapse.navbar-collapse
         ul.nav.navbar-nav.pull-right
-          li
-            a(href='', ng-click='login()') ログイン
-          //li.dropdown
+          li(ng-hide='true')
+            a
+              img(src='/img/ajax-loader.gif')
+          li(ng-hide='user != null', ng-cloak)
+            a(href='auth') ログイン
+          li.dropdown(ng-show='user != null', ng-cloak)
             a.dropdown-toggle(href='#', data-toggle='dropdown')
-              | ぷろぐれ
+              img(ng-src='{{user.photo}}', width='32', height='32', style='border-radius: 4px; border: 1px solid #ccd6dd; margin-top: -8px; margin-bottom: -6px; margin-right: 0.5em;')
+              | {{user.displayName}}
               span.caret
             ul.dropdown-menu(role='menu')
-              li
-                a(href='#') Action
-              li
-                a(href='#') Another action
-              li
-                a(href='#') Something else here
-              li.divider
-              li
-                a(href='#') Separated link
+              li(ng-class='{ disabled: !logout.canExecute() }')
+                a(href='#', ng-click='logout.execute()') ログアウト
           li(style='width: 150px')
             //- ribbon margin
   main
@@ -87,7 +84,7 @@ body(style='background-image: url("#{appRoot}img/geometry2.png"); background-att
     script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0/angular-cookies.min.js')
   script(src='https://cdn.socket.io/socket.io-1.2.0.js')
   if debug
-    script(src='//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.14/require.min.js', data-main='#{appRoot}javascript/config')
+    script(src='//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.14/require.min.js', data-main='javascript/config')
   else
-    script(src='//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.14/require.min.js', data-main='#{appRoot}js/main')
+    script(src='//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.14/require.min.js', data-main='js/main')
   script (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create', 'UA-43486767-11', 'auto');ga('send', 'pageview');

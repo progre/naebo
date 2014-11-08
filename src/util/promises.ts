@@ -4,9 +4,11 @@ export function each<T>(callback: (item: T) => any): (items: T[]) => Promise<T[]
             if (items.length === 0) {
                 return resolve(items);
             }
-            var result = callback(items.shift());
+            var result: Promise<void> = callback(items.shift());
             if (isPromise(result)) {
-                result.then(() => recursion(items));
+                result
+                    .then(() => recursion(items))
+                    .catch(err => console.error(err.stack));
             } else {
                 recursion(items);
             }

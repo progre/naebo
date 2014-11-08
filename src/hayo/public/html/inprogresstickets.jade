@@ -5,10 +5,10 @@ ul.list-group
     p.text-right
       small 2014年10月11日 18:31
     .text-right
-      button.btn.btn-default(style='margin-left: 1em;', ng-class='{active: isOpenDropout}', ng-click='isOpenDropout = !isOpenDropout; isOpenCreated = false;') 無理でした
-      button.btn.btn-primary(style='margin-left: 1em;', ng-class='{active: isOpenCreated}', ng-click='isOpenCreated = !isOpenCreated; isOpenDropout = false;') できたよ！
-      button.btn.btn-primary(style='margin-left: 1em;') はよ！
-      .badge 100
+      button.btn.btn-default(style='margin-left: 1em;', ng-class='{active: isOpenDropout}', ng-show='user != null', ng-click='isOpenDropout = !isOpenDropout; isOpenCreated = false;') 無理でした
+      button.btn.btn-primary(style='margin-left: 1em;', ng-class='{active: isOpenCreated}', ng-show='user != null', ng-click='isOpenCreated = !isOpenCreated; isOpenDropout = false;') できたよ！
+      //- button.btn.btn-primary(style='margin-left: 1em;') はよ！
+      //- .badge 100
     .panel.panel-default.anim.anim64px(style='margin-top: 1em;', ng-show='isOpenDropout')
       .panel-body
         .text-right
@@ -18,7 +18,7 @@ ul.list-group
       .panel-body
         form(role='form', ng-submit='')
           .form-group
-            | @progremaster 「最高に面白いゲーム を作ったよ！」
+            | {{user.displayName}} 「最高に面白いゲーム を作ったよ！」
           .form-group
             input.form-control(type='text', placeholder='http://…')
           .text-right

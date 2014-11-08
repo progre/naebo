@@ -1,5 +1,6 @@
 /// <reference path="../typings/angularjs/angular.d.ts" />
 /// <reference path="../typings/angularjs/angular-route.d.ts" />
+/// <reference path="../typings/cookie-parser/cookie-parser.d.ts" />
 /// <reference path="../typings/es6-promise/es6-promise.d.ts" />
 /// <reference path="../typings/express/express.d.ts" />
 /// <reference path="../typings/gulp/gulp.d.ts" />

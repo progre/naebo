@@ -1,14 +1,14 @@
 ﻿/// <reference path="../../../tsd.d.ts"/>
 
 import directives = require('./module/directives');
-import Database = require('./infrastructure/database');
+import Server = require('./infrastructure/server');
 
 var appRoot = '/hayo/';
 var apiRoot = appRoot + 'api/1/';
 
 var app = angular.module('app', ['ngAnimate', 'ngCookies']);
 
-var database = new Database(apiRoot);
+var server = new Server(apiRoot);
 
 app.config([
     '$locationProvider',
@@ -34,20 +34,17 @@ function minutes(min: number) {
     return min < 10 ? '0' + min : min.toString();
 }
 
-app.controller('IndexController', ['$timeout', '$http', '$scope', '$window',
-    ($timeout: ng.ITimeoutService, $http: ng.IHttpService, $scope: any, $window: ng.IWindowService) => {
-        console.log('hoge')
-        database.on('updated', (updateTickets: Function) => {
-            $scope.$apply(() => {
-                updateTickets($scope.openTickets);
-            });
+app.controller('IndexController', ['$timeout', '$http', '$scope',
+    ($timeout: ng.ITimeoutService, $http: ng.IHttpService, $scope: any) => {
+        $scope.openTickets = server.cachedTickets();
+
+        server.on('updated', (updateTickets: Function) => $scope.$apply(() => {
+            console.log('update tickets');
+            updateTickets($scope.openTickets);
+        }));
+        server.on('user', (user: any) => {
+            $scope.user = user;
         });
-
-        $scope.openTickets = database.cachedTickets();
-
-        $scope.login = () => {
-            $window.location.href = '../auth/twitter/hayo/';
-        };
 
         var deleteExecutings: any[] = [];
         $scope.deleteCommand = {
@@ -75,7 +72,65 @@ app.controller('IndexController', ['$timeout', '$http', '$scope', '$window',
                 return revertExecutings.indexOf(ticket) < 0;
             }
         };
+
+        //var logoutExecuting = false;
+        //$scope.logout = {
+        //    execute: () => {
+        //        console.log('logout..')
+        //        if (logoutExecuting) {
+        //            return;
+        //        }
+        //        logoutExecuting = true;
+        //        server.logout()
+        //            .then(() => {
+        //                logoutExecuting = false;
+        //            });
+        //    },
+        //    canExecute: () => {
+        //        console.log('canecec')
+        //        return !logoutExecuting;
+        //    }
+        //};
+        $scope.logout = new PromiseCommand($scope, () =>
+            server
+                .logout()
+                .then(() => {
+                    $scope.user = null;
+                }));
     }]);
+
+class PromiseCommand {
+    private executing = false;
+
+    constructor(private $scope: any, private _execute: () => Promise<any>) {
+    }
+
+    execute() {
+        if (this.executing) {
+            return;
+        }
+        this.executing = true;
+        this._execute()
+            .then(() => {
+                this.$scope.$apply(() => this.executing = false);
+            })
+            .catch(err => {
+                console.error(err);
+            });
+    }
+
+    canExecute() {
+        return !this.executing;
+    }
+}
+
+class StackablePromiseCommand {
+    constructor(private _execute: Function) {
+    }
+
+    execute() {
+    }
+}
 
 app.controller('NewTicketController', ['$http', '$scope',
     ($http: ng.IHttpService, $scope: any) => {
@@ -88,7 +143,7 @@ app.controller('NewTicketController', ['$http', '$scope',
                 isExecuting = true;
                 var title: string = $scope.title;
                 $scope.title = '';
-                database.putTicket($http, title, $scope.isPost)
+                server.putTicket($http, title, $scope.isPost)
                     .catch(e => { })
                     .then(() => {
                         isExecuting = false;

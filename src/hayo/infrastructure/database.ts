@@ -7,6 +7,17 @@ var SERIAL = {
 };
 
 class Database {
+    static create() {
+        var database = new Database();
+        return (<Promise<{}>>database.sequelize.sync({ force: true }))
+            .then(() => database);
+        //return this.sequelize
+        //    .getMigrator({
+        //        path: process.cwd() + '/migrations'
+        //    })
+        //    .migrate({ method: 'up' });
+    }
+
     private sequelize = new Sequelize(null, null, null, {
         dialect: 'sqlite',
         storage: 'database.sqlite'
@@ -41,16 +52,6 @@ class Database {
         }, {
             timestamps: false
         });
-
-    initialize(): Promise<{}> {
-        return this.sequelize
-            .sync({ force: true });
-        //return this.sequelize
-        //    .getMigrator({
-        //        path: process.cwd() + '/migrations'
-        //    })
-        //    .migrate({ method: 'up' });
-    }
 
     tickets() {
         return this.ticket.findAll({

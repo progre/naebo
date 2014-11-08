@@ -1,19 +1,22 @@
 import EventEmitter2 = require('eventemitter2');
 
-class Database extends EventEmitter2 {
+class Server extends EventEmitter2 {
     private socket = io({ path: '/hayo/socket.io' });
     constructor(
-        private apiRoot: string) {
+        private apiRoot: string
+        ) {
         super();
         this.socket.on('connect', () => {
             console.log('connected');
         });
         this.socket.on('tickets', (tickets: any[]) => {
-            console.log(tickets);
-            super.emit('updated', (openTickets: any[]) => {
+            this.emit('updated', (openTickets: any[]) => {
                 merge(openTickets, tickets.map(fromDTO));
                 sessionStorage.setItem('openTickets', toStorageData(openTickets));
             });
+        });
+        this.socket.on('user', (user: any) => {
+            this.emit('user', user);
         });
     }
 
@@ -25,6 +28,14 @@ class Database extends EventEmitter2 {
         return $http.post(this.apiRoot + 'tickets/', {
             title: title,
             isPost: isPost
+        });
+    }
+
+    logout() {
+        return new Promise((resolve, reject) => {
+            var guid = generateGuid();
+            this.socket.once(guid, resolve);
+            this.socket.emit('logout', guid);
         });
     }
 }
@@ -82,4 +93,14 @@ function merge(a: { id: number }[], b: { id: number }[]) {
     }
 }
 
-export = Database;
+function generateGuid() {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+    }
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+        s4() + '-' + s4() + s4() + s4();
+}
+
+export = Server;

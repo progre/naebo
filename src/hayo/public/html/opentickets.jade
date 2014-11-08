@@ -2,10 +2,11 @@ div
   div(ng-controller='NewTicketController')
     newticket
     .text-center.anim.anim34px(style='margin-bottom: 1em;', ng-hide='isOpen')
-      button.btn.btn-default.btn-block(title='ネタを作成します', style='font-weight: bold;', ng-click='open()') +
+      button.btn.btn-default.btn-block(title='ネタを作成します', style='font-weight: bold;', ng-click='open()', ng-disabled='user == null')
+        | {{user == null ? 'ログインするとネタを追加できます' : '+'}}
   ul.list-group
-    li.list-group-item(ng-hide='true')
-      | ⏳ 読み込み中...
+    li.list-group-item.text-center(ng-hide='true')
+      img(src='/img/ajax-loader.gif')
     li.list-group-item.listanim.anim148px(ng-repeat='ticket in openTickets', ng-class='{ disabled: ticket.deletedAt != null }', ng-cloak)
       div <a ng-href='userPageURL'>{{ticket.username}}</a> さんから
       h2.col-xs-12 {{ticket.title}} <small>を作って！</small>
@@ -13,9 +14,9 @@ div
         small {{ticket.createdAt | dateToDisplay}}
       .text-right
         span(ng-show='ticket.deletedAt == null')
-          button.btn.btn-danger(ng-click='deleteCommand.execute(ticket)', ng-disabled='!deleteCommand.canExecute(ticket)') 削除
-          button.btn.btn-default(style='margin-left: 1em;', ng-class='{active: isOpenStartProgress}', ng-click='isOpenStartProgress = !isOpenStartProgress') やるよ！
-          button.btn.btn-primary(style='margin-left: 1em;')
+          button.btn.btn-danger(ng-show='user != null', ng-click='deleteCommand.execute(ticket)', ng-disabled='!deleteCommand.canExecute(ticket)') 削除
+          button.btn.btn-default(style='margin-left: 1em;', ng-class='{active: isOpenStartProgress}', ng-show='user != null', ng-click='isOpenStartProgress = !isOpenStartProgress') やるよ！
+          //- button.btn.btn-primary(style='margin-left: 1em;')
             | いいね！
           .badge {{ticket.likes}}
         span(ng-show='ticket.deletedAt != null')
@@ -23,7 +24,7 @@ div
       .panel.panel-default.anim.anim64px(style='margin-top: 1em;', ng-show='isOpenStartProgress')
         .panel-body
           form.form-inline.text-right(role='form', ng-submit='')
-            .form-group @progremaster 「{{ticket.title}} を作るよ！」
+            .form-group {{user.displayName}} 「{{ticket.title}} を作るよ！」
             .checkbox(style='margin-left: 1em;')
               label
                 input(type='checkbox')
@@ -33,5 +34,6 @@ div
               input.btn.btn-primary(style='margin-left: 1em;', type='submit', value='宣言')
   div(ng-controller='NewTicketController')
     .text-center.anim.anim34px(ng-hide='isOpen')
-      button.btn.btn-default.btn-block(title='ネタを作成します', style='font-weight: bold;', ng-click='open()') +
+      button.btn.btn-default.btn-block(title='ネタを作成します', style='font-weight: bold;', ng-click='open()', ng-disabled='user == null')
+        | {{user == null ? 'ログインするとネタを追加できます' : '+'}}
     newticket

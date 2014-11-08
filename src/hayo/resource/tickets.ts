@@ -1,14 +1,7 @@
 ﻿import express = require('express');
 import Database = require('../infrastructure/database');
-import Sockets = require('../infrastructure/sockets');
 
-var database = new Database();
-database.initialize()
-    .catch(e => {
-        console.error(e);
-    });
-
-function tickets(io: SocketIO.Server) {
+function tickets(io: SocketIO.Server, database: Database) {
     return {
         create(req: express.Request, res: express.Response) {
             var json: any;
@@ -27,7 +20,8 @@ function tickets(io: SocketIO.Server) {
                     return database.tickets()
                 }).then(tickets => {
                     io.emit('tickets', tickets);
-                });
+                })
+                .catch(err => console.error(err.stack));
         }
     };
 }

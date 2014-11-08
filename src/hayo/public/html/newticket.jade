@@ -2,7 +2,7 @@
   .panel-body
     form(role='form', ng-submit='command.execute()')
       ul.list-inline
-        li @progremaster さんのネタ
+        li {{user.displayName}} さんのネタ
         li.checkbox(style='margin-left: 1em; margin-top: 0;')
           label
             input(type='checkbox', ng-model='isPost')
