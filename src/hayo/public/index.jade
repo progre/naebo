@@ -33,7 +33,7 @@ body(style='background-image: url("img/geometry2.png"); background-attachment: f
               span.caret
             ul.dropdown-menu(role='menu')
               li(ng-class='{ disabled: !logout.canExecute() }')
-                a(href='#', ng-click='logout.execute()') ログアウト
+                a(href='', ng-click='logout.execute()') ログアウト
           li(style='width: 150px')
             //- ribbon margin
   main
@@ -48,9 +48,9 @@ body(style='background-image: url("img/geometry2.png"); background-attachment: f
       .page-header
         h1 実現したネタ
       ul.list-group
-        li.list-group-item
-          div <a href='#'>@progremaster</a> さんのネタを <a href='#'>@progremaster</a> さんが実現しました
-          h2.col-xs-12 <a href='#'>最高に面白いゲーム</a> <small>を作ったよ！</small>
+        li.list-group-item(ng-repeat='ticket in closeTickets', ng-cloak)
+          div <a ng-href='https://twitter.com/intent/user?user_id={{ticket.openUser.providerId}}'>{{ticket.openUser.name}}</a> さんのネタを <a ng-href='https://twitter.com/intent/user?user_id={{ticket.progressUser.providerId}}'>{{ticket.progressUser.name}}</a> さんが実現しました
+          h2.col-xs-12 <a ng-href='{{ticket.url}}'>{{ticket.title}}</a> <small>を作ったよ！</small>
           p.text-right
             small 2014年10月11日 18:31
       .page-header
@@ -67,9 +67,6 @@ body(style='background-image: url("img/geometry2.png"); background-attachment: f
             span.text-muted.pull-right © <a href='https://twitter.com/progremaster'>ぷろぐれ</a>. All rights reserved
         p
           span.text-muted このサイトを利用して発生したいかなる問題もサイト運営者は責任を負いません。
-  a(href='/auth/twitter')
-    | hog|
-
   script(src='//code.jquery.com/jquery-2.1.0.min.js')
   script(src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js")
   if debug

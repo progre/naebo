@@ -2,6 +2,7 @@
 
 import directives = require('./module/directives');
 import Server = require('./infrastructure/server');
+import TicketRepos = require('./domain/repos/ticketrepos');
 
 var appRoot = '/hayo/';
 var apiRoot = appRoot + 'api/1/';
@@ -9,6 +10,7 @@ var apiRoot = appRoot + 'api/1/';
 var app = angular.module('app', ['ngAnimate', 'ngCookies']);
 
 var server = new Server(apiRoot);
+var ticketRepos = new TicketRepos(server);
 
 app.config([
     '$locationProvider',
@@ -36,15 +38,18 @@ function minutes(min: number) {
 
 app.controller('IndexController', ['$timeout', '$http', '$scope',
     ($timeout: ng.ITimeoutService, $http: ng.IHttpService, $scope: any) => {
-        $scope.openTickets = server.cachedTickets();
+        var cache = ticketRepos.cachedTickets();
+        $scope.openTickets = cache.opens;
+        $scope.inprogressTickets = cache.inprogresses;
+        $scope.closeTickets = cache.closes;
 
-        server.on('updated', (updateTickets: Function) => $scope.$apply(() => {
+        ticketRepos.scopeOn('updated', (updateTickets: Function) => {
             console.log('update tickets');
-            updateTickets($scope.openTickets);
-        }));
-        server.on('user', (user: any) => {
+            updateTickets($scope.openTickets, $scope.inprogressTickets, $scope.closeTickets);
+        }, $scope);
+        server.scopeOn('user', (user: any) => {
             $scope.user = user;
-        });
+        }, $scope);
 
         var deleteExecutings: any[] = [];
         $scope.deleteCommand = {
@@ -73,27 +78,17 @@ app.controller('IndexController', ['$timeout', '$http', '$scope',
             }
         };
 
-        //var logoutExecuting = false;
-        //$scope.logout = {
-        //    execute: () => {
-        //        console.log('logout..')
-        //        if (logoutExecuting) {
-        //            return;
-        //        }
-        //        logoutExecuting = true;
-        //        server.logout()
-        //            .then(() => {
-        //                logoutExecuting = false;
-        //            });
-        //    },
-        //    canExecute: () => {
-        //        console.log('canecec')
-        //        return !logoutExecuting;
-        //    }
-        //};
-        $scope.logout = new PromiseCommand($scope, () =>
-            server
-                .logout()
+        $scope.progress = new PromiseCommand($scope,
+            ticketId => server.progress(ticketId));
+
+        $scope.reverse = new PromiseCommand($scope,
+            ticketId => server.reverse(ticketId));
+
+        $scope.complete = new PromiseCommand($scope,
+            (ticketId, url) => server.complete(ticketId, url));
+
+        $scope.logout = new PromiseCommand($scope,
+            () => server.logout()
                 .then(() => {
                     $scope.user = null;
                 }));
@@ -102,20 +97,20 @@ app.controller('IndexController', ['$timeout', '$http', '$scope',
 class PromiseCommand {
     private executing = false;
 
-    constructor(private $scope: any, private _execute: () => Promise<any>) {
+    constructor(private $scope: any, private _execute: (...args: any[]) => Promise<any>) {
     }
 
-    execute() {
+    execute(...args: any[]) {
         if (this.executing) {
             return;
         }
         this.executing = true;
-        this._execute()
+        (<Promise<any>>this._execute.apply(this, args))
             .then(() => {
                 this.$scope.$apply(() => this.executing = false);
             })
             .catch(err => {
-                console.error(err);
+                console.error(err.stack);
             });
     }
 
@@ -143,7 +138,7 @@ app.controller('NewTicketController', ['$http', '$scope',
                 isExecuting = true;
                 var title: string = $scope.title;
                 $scope.title = '';
-                server.putTicket($http, title, $scope.isPost)
+                ticketRepos.putTicket(title, $scope.isPost)
                     .catch(e => { })
                     .then(() => {
                         isExecuting = false;
@@ -154,6 +149,7 @@ app.controller('NewTicketController', ['$http', '$scope',
                 return !isExecuting;
             }
         };
+        //$scope.command = new PromiseCommand($scope, () => server.putTicket
     }]);
 
 angular.bootstrap(document, ['app']);

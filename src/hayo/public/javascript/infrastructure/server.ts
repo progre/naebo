@@ -9,88 +9,64 @@ class Server extends EventEmitter2 {
         this.socket.on('connect', () => {
             console.log('connected');
         });
-        this.socket.on('tickets', (tickets: any[]) => {
-            this.emit('updated', (openTickets: any[]) => {
-                merge(openTickets, tickets.map(fromDTO));
-                sessionStorage.setItem('openTickets', toStorageData(openTickets));
-            });
+        this.socket.on('tickets', (tickets: any) => {
+            tickets.opens.forEach(restore);
+            tickets.inprogresses.forEach(restore);
+            tickets.closes.forEach(restore);
+            this.emit('ticketsUpdated', tickets);
         });
         this.socket.on('user', (user: any) => {
             this.emit('user', user);
         });
     }
 
-    cachedTickets() {
-        return fromStorageData(sessionStorage.getItem('openTickets'));
+    scopeOn(event: string, listener: Function, $scope: any) {
+        this.on(event, () => safeApply($scope, listener.apply(this, arguments)));
     }
 
-    putTicket($http: ng.IHttpService, title: string, isPost: boolean) {
-        return $http.post(this.apiRoot + 'tickets/', {
-            title: title,
-            isPost: isPost
-        });
+    putTicket(title: string, isPost: boolean) {
+        return this.emitMethod('ticket', { title: title, isPost: isPost });
+    }
+
+    progress(ticketId: string) {
+        return this.emitMethod('progress ticket', ticketId);
+    }
+
+    reverse(ticketId: string) {
+        return this.emitMethod('reverse ticket', ticketId);
+    }
+
+    complete(ticketId: string, url: string) {
+        return this.emitMethod('complete ticket', ticketId, url);
     }
 
     logout() {
+        return this.emitMethod('logout');
+    }
+
+    private emitMethod(event: string, ...args: any[]) {
+        var argz = Array.prototype.slice.call(arguments).slice(1);
         return new Promise((resolve, reject) => {
             var guid = generateGuid();
             this.socket.once(guid, resolve);
-            this.socket.emit('logout', guid);
+            argz.unshift(event);
+            argz.push(guid);
+            this.socket.emit.apply(this.socket, argz);
         });
     }
 }
 
-function fromDTO(dto: any) {
-    return {
-        id: dto.id,
-        title: dto.title,
-        username: dto.username,
-        likes: dto.likes,
-        createdAt: new Date(dto.createdAt),
-        deletedAt: dto.deletedat == null ? null : new Date(dto.deletedat)
-    };
-}
-
-function toStorageData(data: any[]) {
-    return JSON.stringify(data.map(x => {
-        var y: any = {};
-        $.extend(y, x);
-        delete y.$$hashKey;
-        return y;
-    }));
-}
-
-function fromStorageData(storageData: string) {
-    var data: any[] = JSON.parse(storageData);
-    if (data == null)
-        return [];
-    data.forEach(x => {
-        x.createdAt = new Date(x.createdAt);
-        x.deletedAt = x.deletedAt == null ? null : new Date(x.deletedAt);
-    });
-    return data;
-}
-
-/** aもbもid降順に並んでいるものとして、マージする */
-function merge(a: { id: number }[], b: { id: number }[]) {
-    var i = a.length - 1;
-    for (var j = b.length - 1; j >= 0; j--) {
-        var itemB = b[j];
-        for (; ;) {
-            if (i >= 0) {
-                if (a[i].id === itemB.id) {
-                    i--;
-                    break;
-                }
-                if (a[i].id < itemB.id) {
-                    i--;
-                    continue;
-                }
-            }
-            a.splice(i + 1, 0, itemB);
-            break;
-        }
+function safeApply($scope: any, func: Function) {
+    var phase = $scope.$root.$$phase;
+    if (phase == '$apply' || phase == '$digest') {
+        func();
+    } else {
+        $scope.$apply(func);
     }
+}
+
+function restore(ticket: any) {
+    ticket.createdAt = new Date(ticket.createdAt);
 }
 
 function generateGuid() {

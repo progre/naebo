@@ -1,7 +1,7 @@
 ul.list-group
-  li.list-group-item
-    div <a href='#'>@progremaster</a> さんのネタを <a href='#'>@progremaster</a> さんが作っています
-    h2.col-xs-12 最高に面白いゲーム <small>を作るよ！</small>
+  li.list-group-item(ng-repeat='ticket in inprogressTickets', ng-class='{ disabled: ticket.deletedAt != null }', ng-cloak)
+    div <a ng-href='https://twitter.com/intent/user?user_id={{ticket.openUser.providerId}}'>{{ticket.openUser.name}}</a> さんのネタを <a ng-href='https://twitter.com/intent/user?user_id={{ticket.progressUser.providerId}}'>{{ticket.progressUser.name}}</a> さんが作っています
+    h2.col-xs-12 {{ticket.title}} <small>を作るよ！</small>
     p.text-right
       small 2014年10月11日 18:31
     .text-right
@@ -13,20 +13,20 @@ ul.list-group
       .panel-body
         .text-right
           button.btn.btn-default(ng-click='isOpenDropout = false') 閉じる
-          button.btn.btn-primary(style='margin-left: 1em;') 投稿されたネタに戻す
+          button.btn.btn-primary(style='margin-left: 1em;', ng-click='reverse.execute(ticket.id)', ng-disabled='!reverse.canExecute()') 投稿されたネタに戻す
     .panel.panel-default.anim.anim150px(style='margin-top: 1em;', ng-show='isOpenCreated')
       .panel-body
-        form(role='form', ng-submit='')
+        form(role='form', ng-submit='complete.execute(ticket.id, url)')
           .form-group
             | {{user.displayName}} 「最高に面白いゲーム を作ったよ！」
           .form-group
-            input.form-control(type='text', placeholder='http://…')
+            input.form-control(type='url', placeholder='http://…', ng-model='url')
           .text-right
             ul.list-inline
-              li.checkbox(style='margin-left: 1em; margin-top: 0;')
+              //- li.checkbox(style='margin-left: 1em; margin-top: 0;')
                 label
                   input(type='checkbox')
                   | ツイートする
               li(style='padding-right: 0;')
                 button.btn.btn-default(ng-click='isOpenCreated = false') 閉じる
-                input.btn.btn-primary(style='margin-left: 1em;', type='submit', value='完了')
+                input.btn.btn-primary(style='margin-left: 1em;', type='submit', value='完了', ng-disabled='!complete.canExecute()')

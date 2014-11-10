@@ -1,9 +1,11 @@
-/// <reference path="../tsd.d.ts" />
+ï»¿/// <reference path="../tsd.d.ts" />
 
 import express = require('express');
+import callbacks = require('../util/callbacks');
 import SessionStore = require('../app/sessionstore');
 import tickets = require('./resource/tickets');
 import Database = require('./infrastructure/database');
+import dbs = require('./infrastructure/databases');
 
 class Hayo {
     static create(app: express.IRouter<void>, io: SocketIO.Server, sessionStore: SessionStore) {
@@ -25,11 +27,10 @@ class Hayo {
             res.redirect('/auth/twitter/');
         });
         app.get('/auth/callback', (req: express.Request, res: express.Response) => {
-            // ‰¼“Še‚µ‚½‚à‚Ì‚ª‚ ‚ê‚ÎŠm’è‚·‚é
+            // ä»®æŠ•ç¨¿ã—ãŸã‚‚ã®ãŒã‚ã‚Œã°ç¢ºå®šã™ã‚‹
             res.redirect('../');
         });
-        io.on('connect', tryFunc(socket => this.connect(socket)));
-        //io.on('connect', socket => this.connect(socket));
+        io.on('connect', callbacks.tryFunc(socket => this.connect(socket)));
     }
 
     routes() {
@@ -42,42 +43,103 @@ class Hayo {
         console.log('connected');
         (<Promise<any>>this.sessionStore.get(socket.request))
             .then(session => {
-                socket.on('logout', tryFunc((guid: string) => {
-                    session.passport = null;
-                    console.log('logout')
-                    session.save();
-                    socket.emit(guid);
-                }));
-
-                var user = session.passport.user;
-                if (user == null) {
-                    socket.emit('user', null);
-                } else {
-                    console.log(session.passport);
-                    socket.emit('user', {
-                        provider: user.provider,
-                        providerId: user.providerId,
-                        displayName: user.displayName,
-                        photo: user.photo
-                    });
-                }
-                return this.database.tickets();
-            })
-            .then(tickets => {
-                socket.emit('tickets', tickets);
+                return initSocket(socket, this.io, session, this.database);
             })
             .catch(err => console.error(err.stack));
     }
+
+    private defineEvents(socket: SocketIO.Socket) {
+    }
 }
 
-function tryFunc(func: (arg: any) => void) {
-    return (arg: any) => {
-        try {
-            func(arg);
-        } catch (err) {
-            console.error(err.stack);
-        };
-    };
+function initSocket(socket: SocketIO.Socket, io: SocketIO.Server, session: any, database: Database) {
+    socket.on('logout', callbacks.tryFunc((guid: string) => {
+        session.passport = null;
+        session.save();
+        socket.emit(guid);
+    }));
+
+    socket.on('ticket', callbacks.tryFunc((args: any, guid: string) => {
+        getUser(session, database)
+            .then(user => {
+                if (user == null) {
+                    return Promise.reject(new Error('user not found'));
+                }
+                return database.putTicket(user.id, args.title);
+            })
+            .then((ticket) => {
+                if (args.isPost) {
+                    // twitterã«Postã™ã‚‹â˜€
+                }
+            })
+            .catch(err => console.error(err.stack))
+            .then(() => {
+                socket.emit(guid);
+                return emitTickets(database, io);
+            })
+            .catch(err => console.error(err.stack));
+    }));
+
+    socket.on('progress ticket', callbacks.tryFunc((ticketId: string, guid: string) => {
+        getUser(session, database)
+            .then(user => database.progressTicket(user.id, ticketId))
+            .then(() => socket.emit(guid))
+            .then(() => emitTickets(database, io))
+            .catch(err => console.error(err.stack));
+    }));
+
+    socket.on('reverse ticket', callbacks.tryFunc((ticketId: string, guid: string) => {
+        getUser(session, database)
+            .then(user => database.reverseTicket(user.id, ticketId))
+            .then(() => socket.emit(guid))
+            .then(() => emitTickets(database, io))
+            .catch(err => console.error(err.stack));
+    }));
+
+    socket.on('complete ticket', callbacks.tryFunc((ticketId: string, url:string, guid: string) => {
+        getUser(session, database)
+            .then(user => database.completeTicket(user.id, ticketId, url))
+            .then(() => socket.emit(guid))
+            .then(() => emitTickets(database, io))
+            .catch(err => console.error(err.stack));
+    }));
+
+    return Promise.all([
+        getUser(session, database)
+            .then(user => socket.emit('user', user)),
+        emitTickets(database, io)
+    ]);
+}
+
+function emitTickets(database: Database, io: SocketIO.Server) {
+    return Promise
+        .all([
+            database.tickets(dbs.TicketType.open),
+            database.tickets(dbs.TicketType.inprogress),
+            database.tickets(dbs.TicketType.close)
+        ])
+        .then(tickets => io.emit('tickets', {
+            opens: tickets[0],
+            inprogresses: tickets[1],
+            closes: tickets[2]
+        }));
+}
+
+function getUser(session: any, database: Database) {
+    var passportUser = session.passport.user;
+    if (passportUser == null) {
+        return Promise.resolve<any>(null);
+    } else {
+        return database
+            .getOrCreateUser(passportUser.provider, passportUser.providerId, passportUser.displayName)
+            .then(users => ({
+                id: users[0].get('id'),
+                provider: passportUser.provider,
+                providerId: passportUser.providerId,
+                displayName: passportUser.displayName,
+                photo: passportUser.photo
+            }));
+    }
 }
 
 function index(app: express.IRouter<void>, io: SocketIO.Server, sessionStore: any) {
