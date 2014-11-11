@@ -1,0 +1,46 @@
+/// <reference path="../typings/tsd.d.ts"/>
+global.Promise = global.Promise || require('es6-promise').Promise;
+var gulp = require('gulp');
+var jade = require('gulp-jade');
+var fileUtils = require('../src/util/fileutils');
+
+gulp.task('jade', ['jade-root', 'jade-sub']);
+gulp.task('jade-release', ['jade-root-release', 'jade-sub-release']);
+
+gulp.task('jade-root', jadeRootTask(true));
+gulp.task('jade-root-release', jadeRootTask(false));
+function jadeRootTask(debug) {
+    return function () {
+        return gulp.src('src/public/**/*.jade')
+            .pipe(jade({ data: { debug: debug } }))
+            .pipe(gulp.dest('app/public/'));
+    };
+}
+
+gulp.task('jade-sub', jadeSubTask(true));
+gulp.task('jade-sub-release', jadeSubTask(false));
+function jadeSubTask(debug) {
+    return function () {
+        return fileUtils.getAppNames('src')
+            .then(function (apps) {
+                return parallel(apps.map(function (app) {
+                    return gulp.src('src/' + app + '/**/*.jade')
+                        .pipe(jade({
+                            data: {
+                                debug: debug,
+                                appRoot: '/' + app + '/'
+                            }
+                        }))
+                        .pipe(gulp.dest('app/' + app));
+                }));
+            });
+    };
+}
+
+function parallel(taskStreams) {
+    return Promise.all(taskStreams.map(function (stream) {
+        return new Promise(function (resolve, reject) {
+            stream.on('end', resolve);
+        });
+    }));
+}

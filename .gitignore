@@ -6,7 +6,6 @@ tmp/
 
 *.css
 *.html
-*.js
 *.map
 
 secret.json
