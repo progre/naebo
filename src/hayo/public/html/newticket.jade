@@ -8,7 +8,7 @@
             input(type='checkbox', ng-model='isPost')
             | 作成時にツイートする
       .form-group
-        input.form-control(type='text', placeholder='アイディア', ng-model='title', required)
+        input.form-control(type='text', placeholder='アイディア', ng-model='title', maxlength='32', required)
       .form-group.text-right を作って！
       .text-right
         button.btn.btn-default(type='button', ng-click='close()') 閉じる

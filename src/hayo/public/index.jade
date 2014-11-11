@@ -45,14 +45,15 @@ body(style='background-image: url("img/geometry2.png"); background-attachment: f
         a.twitter-share-button(href='https://twitter.com/share', data-text='作ってほしいもの、必要とされているものを共有しましょう はよつくって', data-via='progremaster', data-size='large') Tweet
         script !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
     .container
-      .page-header
-        h1 実現したネタ
-      ul.list-group
-        li.list-group-item(ng-repeat='ticket in closeTickets', ng-cloak)
-          div <a ng-href='https://twitter.com/intent/user?user_id={{ticket.openUser.providerId}}'>{{ticket.openUser.name}}</a> さんのネタを <a ng-href='https://twitter.com/intent/user?user_id={{ticket.progressUser.providerId}}'>{{ticket.progressUser.name}}</a> さんが実現しました
-          h2.col-xs-12 <a ng-href='{{ticket.url}}'>{{ticket.title}}</a> <small>を作ったよ！</small>
-          p.text-right
-            small 2014年10月11日 18:31
+      div(ng-show='closeTickets.length > 0', ng-cloak)
+        .page-header
+          h1 実現したネタ
+        ul.list-group
+          li.list-group-item(ng-repeat='ticket in closeTickets', ng-cloak)
+            div <a ng-href='https://twitter.com/intent/user?user_id={{ticket.openUser.providerId}}'>{{ticket.openUser.name}}</a> さんのネタを <a ng-href='https://twitter.com/intent/user?user_id={{ticket.progressUser.providerId}}'>{{ticket.progressUser.name}}</a> さんが実現しました
+            h2.col-xs-12 <a ng-href='{{ticket.url}}'>{{ticket.title}}</a> <small>を作ったよ！</small>
+            p.text-right
+              small 2014年10月11日 18:31
       .page-header
         h1 投稿されたネタ
       include ./html/opentickets.jade

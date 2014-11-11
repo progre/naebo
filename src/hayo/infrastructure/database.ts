@@ -4,19 +4,17 @@ import dbs = require('./databases');
 var SERIAL = {
     type: Sequelize.BIGINT,
     primaryKey: true,
-    autoIncrement: true
+    autoIncrement: true,
+    get: function () {
+        return this.getDataValue('id').toString(10);
+    }
 };
 
 class Database {
     static create() {
         var database = new Database();
-        return (<Promise<{}>>database.sequelize.sync({ force: true }))
+        return database.sequelize.sync()
             .then(() => database);
-        //return this.sequelize
-        //    .getMigrator({
-        //        path: process.cwd() + '/migrations'
-        //    })
-        //    .migrate({ method: 'up' });
     }
 
     private sequelize = new Sequelize(null, null, null, {
@@ -38,22 +36,28 @@ class Database {
     private ticket = this.sequelize.define('Ticket',
         {
             id: SERIAL,
-            title: Sequelize.STRING,
+            title: {
+                type: Sequelize.STRING,
+                validate: { len: [1, 32] }
+            },
             type: Sequelize.INTEGER,
-            url: Sequelize.STRING
+            url: {
+                type: Sequelize.STRING,
+                validate: { len: [1, 2083] }
+            },
         }, {
             updatedAt: false,
             paranoid: true
         });
 
-    private like = this.sequelize.define('Like',
-        {
-            id: SERIAL,
-            userId: Sequelize.INTEGER,
-            ticketId: Sequelize.INTEGER
-        }, {
-            timestamps: false
-        });
+    //private like = this.sequelize.define('Like',
+    //    {
+    //        id: SERIAL,
+    //        userId: Sequelize.INTEGER,
+    //        ticketId: Sequelize.INTEGER
+    //    }, {
+    //        timestamps: false
+    //    });
 
     constructor() {
         this.ticket.belongsTo(this.user, { as: 'openUser' });
@@ -77,7 +81,7 @@ class Database {
                     createdAt: x['createdAt'],
                     title: x['title'],
                     url: x['url'],
-                    openUser: {
+                    openUser: openUser == null ? null : {
                         id: openUser.id,
                         name: openUser.name,
                         provider: openUser.provider,
@@ -114,6 +118,23 @@ class Database {
             type: dbs.TicketType.open,
             openUserId: userId
         });
+    }
+
+    deleteTicket(userId: string, ticketId: string) {
+        console.log(userId, ticketId);
+        return this.sequelize.transaction({ autocommit: false })
+            .then(t => {
+                return this.ticket.findOne(
+                    { where: { id: ticketId } },
+                    { transaction: t })
+                    .then(ticket => {
+                        return ticket.destroy({ transaction: t });
+//                        return ticket.save({ transaction: t });
+                    })
+                    .then(() => {
+                        t.commit();
+                    });
+            });
     }
 
     progressTicket(userId: string, ticketId: string) {

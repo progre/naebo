@@ -80,7 +80,19 @@ function initSocket(socket: SocketIO.Socket, io: SocketIO.Server, session: any, 
             .catch(err => console.error(err.stack));
     }));
 
+    socket.on('delete ticket', callbacks.tryFunc((ticketId: string, guid: string) => {
+        if (!isString(ticketId))
+            throw new Error('Type mismatch');
+        getUser(session, database)
+            .then(user => database.deleteTicket(user.id, ticketId))
+            .then(() => socket.emit(guid))
+            .then(() => emitTickets(database, io))
+            .catch(err => console.error(err.stack));
+    }));
+
     socket.on('progress ticket', callbacks.tryFunc((ticketId: string, guid: string) => {
+        if (!isString(ticketId))
+            throw new Error('Type mismatch');
         getUser(session, database)
             .then(user => database.progressTicket(user.id, ticketId))
             .then(() => socket.emit(guid))
@@ -89,6 +101,8 @@ function initSocket(socket: SocketIO.Socket, io: SocketIO.Server, session: any, 
     }));
 
     socket.on('reverse ticket', callbacks.tryFunc((ticketId: string, guid: string) => {
+        if (!isString(ticketId))
+            throw new Error('Type mismatch');
         getUser(session, database)
             .then(user => database.reverseTicket(user.id, ticketId))
             .then(() => socket.emit(guid))
@@ -96,7 +110,9 @@ function initSocket(socket: SocketIO.Socket, io: SocketIO.Server, session: any, 
             .catch(err => console.error(err.stack));
     }));
 
-    socket.on('complete ticket', callbacks.tryFunc((ticketId: string, url:string, guid: string) => {
+    socket.on('complete ticket', callbacks.tryFunc((ticketId: string, url: string, guid: string) => {
+        if (!isString(ticketId) || !isString(url))
+            throw new Error('Type mismatch');
         getUser(session, database)
             .then(user => database.completeTicket(user.id, ticketId, url))
             .then(() => socket.emit(guid))
@@ -145,6 +161,10 @@ function getUser(session: any, database: Database) {
 function index(app: express.IRouter<void>, io: SocketIO.Server, sessionStore: any) {
     return Hayo.create(app, io, sessionStore)
         .then(hayo => hayo.routes());
+}
+
+function isString(obj: any) {
+    return typeof obj === 'string';
 }
 
 export = index;

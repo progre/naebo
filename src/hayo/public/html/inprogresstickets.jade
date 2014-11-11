@@ -4,9 +4,17 @@ ul.list-group
     h2.col-xs-12 {{ticket.title}} <small>を作るよ！</small>
     p.text-right
       small 2014年10月11日 18:31
-    .text-right
-      button.btn.btn-default(style='margin-left: 1em;', ng-class='{active: isOpenDropout}', ng-show='user != null', ng-click='isOpenDropout = !isOpenDropout; isOpenCreated = false;') 無理でした
-      button.btn.btn-primary(style='margin-left: 1em;', ng-class='{active: isOpenCreated}', ng-show='user != null', ng-click='isOpenCreated = !isOpenCreated; isOpenDropout = false;') できたよ！
+    .text-right(ng-show='user != null && user.id == ticket.progressUser.id')
+      button.btn.btn-default(
+        style='margin-left: 1em;',
+        ng-class='{active: isOpenDropout}',
+        ng-click='isOpenDropout = !isOpenDropout; isOpenCreated = false;'
+        ) 無理でした
+      button.btn.btn-primary(
+        style='margin-left: 1em;',
+        ng-class='{active: isOpenCreated}',
+        ng-click='isOpenCreated = !isOpenCreated; isOpenDropout = false;'
+        ) できたよ！
       //- button.btn.btn-primary(style='margin-left: 1em;') はよ！
       //- .badge 100
     .panel.panel-default.anim.anim64px(style='margin-top: 1em;', ng-show='isOpenDropout')
@@ -20,7 +28,7 @@ ul.list-group
           .form-group
             | {{user.displayName}} 「最高に面白いゲーム を作ったよ！」
           .form-group
-            input.form-control(type='url', placeholder='http://…', ng-model='url')
+            input.form-control(type='url', placeholder='http://…', ng-model='url', required)
           .text-right
             ul.list-inline
               //- li.checkbox(style='margin-left: 1em; margin-top: 0;')

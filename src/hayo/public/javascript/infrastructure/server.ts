@@ -10,6 +10,7 @@ class Server extends EventEmitter2 {
             console.log('connected');
         });
         this.socket.on('tickets', (tickets: any) => {
+            console.log(tickets);
             tickets.opens.forEach(restore);
             tickets.inprogresses.forEach(restore);
             tickets.closes.forEach(restore);
@@ -26,6 +27,11 @@ class Server extends EventEmitter2 {
 
     putTicket(title: string, isPost: boolean) {
         return this.emitMethod('ticket', { title: title, isPost: isPost });
+    }
+
+    delete(ticketId: string) {
+        console.log(ticketId);
+        return this.emitMethod('delete ticket', ticketId);
     }
 
     progress(ticketId: string) {

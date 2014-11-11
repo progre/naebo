@@ -78,6 +78,9 @@ app.controller('IndexController', ['$timeout', '$http', '$scope',
             }
         };
 
+        $scope.delete = new StackablePromiseCommand($scope,
+            ticketId => server.delete(ticketId));
+
         $scope.progress = new PromiseCommand($scope,
             ticketId => server.progress(ticketId));
 
@@ -120,10 +123,28 @@ class PromiseCommand {
 }
 
 class StackablePromiseCommand {
-    constructor(private _execute: Function) {
+    private executings: any[] = [];
+
+    constructor(private $scope: any, private _execute: (arg: any) => Promise<any>) {
     }
 
-    execute() {
+    execute(arg: any) {
+        if (!this.canExecute(arg))
+            return;
+        this.executings.push(arg);
+        this._execute(arg)
+            .then(() => {
+                this.$scope.$apply(
+                    () => this.executings
+                        = this.executings.filter(x => x !== arg));
+            })
+            .catch(err => {
+                console.error(err.stack);
+            });
+    }
+
+    canExecute(arg: any) {
+        return this.executings.indexOf(arg) < 0;
     }
 }
 

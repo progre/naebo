@@ -15,8 +15,15 @@ div
         small {{ticket.createdAt | dateToDisplay}}
       .text-right
         span(ng-show='ticket.deletedAt == null')
-          //- button.btn.btn-danger(ng-show='user != null && user.id == ticket.openUser.id', ng-click='deleteCommand.execute(ticket)', ng-disabled='!deleteCommand.canExecute(ticket)') 削除
-          button.btn.btn-default(style='margin-left: 1em;', ng-class='{active: isOpenStartProgress}', ng-show='user != null', ng-click='isOpenStartProgress = !isOpenStartProgress') やるよ！
+          button.btn.btn-danger(
+            ng-show='user != null && user.id == ticket.openUser.id',
+            ng-click='delete.execute(ticket.id)',
+            ng-disabled='!delete.canExecute(ticket.id)'
+            ) 削除
+          button.btn.btn-default(
+            style='margin-left: 1em;',
+            ng-class='{active: isOpenStartProgress}',
+            ng-show='user != null', ng-click='isOpenStartProgress = !isOpenStartProgress') やるよ！
           //- button.btn.btn-primary(style='margin-left: 1em;')
             | いいね！
           .badge {{ticket.likes}}
