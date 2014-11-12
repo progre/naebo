@@ -19,8 +19,7 @@ gulp.task('deploy', ['build-release'], function () {
     }, function (resolve, reject) {
         var cmd = [
             'git add -A',
-            'git commit -a -m "update"',
-            'git push origin master'
+            'git commit -a -m "update"'
         ].join('&&');
         childProcess.exec(cmd, { cwd: 'dist' },
             function (error, stdout, stderr) {
@@ -32,6 +31,18 @@ gulp.task('deploy', ['build-release'], function () {
                 }
                 resolve();
             });
+    }, function (resolve, reject) {
+        var push = childProcess.spawn('git', 'push origin master'.split(' '), { cwd: 'dist' });
+        push.stdout.on('data', function (data) {
+            console.log(data.toString());
+        });
+        push.stderr.on('data', function (data) {
+            console.error(data.toString());
+        });
+        push.on('close', function () {
+            console.log('!!!FINISH!!!');
+            resolve();
+        });
     });
 });
 
@@ -40,7 +51,6 @@ function sequence() {
     for (var i = 0; i < arguments.length; i++) {
         callbacks[i] = arguments[i];
     }
-    console.log(callbacks);
     return callbacks.reduce(
         function (promise, callback) {
             return promise.then(function () {
