@@ -11,16 +11,20 @@ var SERIAL = {
 };
 
 class Database {
-    static create() {
-        var database = new Database();
+    static create(dataDir: string) {
+        var sequelize = new Sequelize(null, null, null, {
+            dialect: 'sqlite',
+            storage: dataDir + 'database.sqlite'
+        });
+        var database = new Database(sequelize);
         return database.sequelize.sync()
             .then(() => database);
     }
 
-    private sequelize = new Sequelize(null, null, null, {
-        dialect: 'sqlite',
-        storage: 'database.sqlite'
-    });
+    //private sequelize = new Sequelize(null, null, null, {
+    //    dialect: 'sqlite',
+    //    storage: 'database.sqlite'
+    //});
 
     private user = this.sequelize.define('User',
         {
@@ -59,7 +63,7 @@ class Database {
     //        timestamps: false
     //    });
 
-    constructor() {
+    constructor(private sequelize: Sequelize) {
         this.ticket.belongsTo(this.user, { as: 'openUser' });
         this.ticket.belongsTo(this.user, { as: 'progressUser' });
     }
@@ -121,7 +125,6 @@ class Database {
     }
 
     deleteTicket(userId: string, ticketId: string) {
-        console.log(userId, ticketId);
         return this.sequelize.transaction({ autocommit: false })
             .then(t => {
                 return this.ticket.findOne(
@@ -129,7 +132,7 @@ class Database {
                     { transaction: t })
                     .then(ticket => {
                         return ticket.destroy({ transaction: t });
-//                        return ticket.save({ transaction: t });
+                        //                        return ticket.save({ transaction: t });
                     })
                     .then(() => {
                         t.commit();

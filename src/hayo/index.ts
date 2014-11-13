@@ -8,8 +8,13 @@ import Database = require('./infrastructure/database');
 import dbs = require('./infrastructure/databases');
 
 class Hayo {
-    static create(app: express.IRouter<void>, io: SocketIO.Server, sessionStore: SessionStore) {
-        return Database.create()
+    static new(
+        app: express.IRouter<void>,
+        io: SocketIO.Server,
+        sessionStore: SessionStore,
+        dataDir: string
+        ) {
+        return Database.create(dataDir)
             .then(database => new Hayo(app, io, sessionStore, database));
     }
 
@@ -158,8 +163,18 @@ function getUser(session: any, database: Database) {
     }
 }
 
-function index(app: express.IRouter<void>, io: SocketIO.Server, sessionStore: any) {
-    return Hayo.create(app, io, sessionStore)
+function index(
+    options: {
+        router: express.IRouter<void>;
+        io: SocketIO.Server;
+        sessionStore: any;
+        dataDir: string;
+    }) {
+    return Hayo.new(
+        options.router,
+        options.io,
+        options.sessionStore,
+        options.dataDir)
         .then(hayo => hayo.routes());
 }
 
