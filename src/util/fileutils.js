@@ -1,4 +1,3 @@
-global.Promise = global.Promise || require('es6-promise').Promise;
 var fs = require('fs');
 
 exports.getAppNames = function (baseDir) {

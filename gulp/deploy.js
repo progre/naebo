@@ -1,5 +1,4 @@
 /// <reference path="../typings/tsd.d.ts"/>
-global.Promise = global.Promise || require('es6-promise').Promise;
 var childProcess = require('child_process');
 var gulp = require('gulp');
 

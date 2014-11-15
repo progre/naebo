@@ -1,4 +1,4 @@
-app/
+/app/
 dist/
 log/
 node_modules/

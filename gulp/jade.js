@@ -1,7 +1,7 @@
 /// <reference path="../typings/tsd.d.ts"/>
-global.Promise = global.Promise || require('es6-promise').Promise;
 var gulp = require('gulp');
 var jade = require('gulp-jade');
+var plumber = require('gulp-plumber');
 var fileUtils = require('../src/util/fileutils');
 
 gulp.task('jade', ['jade-root', 'jade-sub']);
@@ -12,6 +12,7 @@ gulp.task('jade-root-release', jadeRootTask(false));
 function jadeRootTask(debug) {
     return function () {
         return gulp.src('src/public/**/*.jade')
+            .pipe(plumber())
             .pipe(jade({ data: { debug: debug } }))
             .pipe(gulp.dest('app/public/'));
     };
@@ -24,7 +25,8 @@ function jadeSubTask(debug) {
         return fileUtils.getAppNames('src')
             .then(function (apps) {
                 return parallel(apps.map(function (app) {
-                    return gulp.src('src/' + app + '/**/*.jade')
+                    return gulp.src(['src/' + app + '/**/*.jade', '!**/template/**'])
+                        .pipe(plumber())
                         .pipe(jade({
                             data: {
                                 debug: debug,

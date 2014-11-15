@@ -19,8 +19,6 @@ app.config([
     }
 ]);
 
-app.directive('opentickets', directives.simple(appRoot, 'opentickets'));
-app.directive('inprogresstickets', directives.simple(appRoot, 'inprogresstickets'));
 app.directive('newticket', directives.simple(appRoot, 'newticket'));
 
 app.filter('dateToDisplay', [() => (date: Date) => {

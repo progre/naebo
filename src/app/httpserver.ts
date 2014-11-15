@@ -14,8 +14,8 @@ var accessLogger = log4js.getLogger('access');
 class HttpServer {
     private app = express();
 
-    listen(port: number, localIp: string, dataDir: string, debug: boolean) {
-        passport.init();
+    listen(port: number, localIp: string, baseURL: string, dataDir: string, debug: boolean) {
+        passport.init(baseURL);
 
         if (debug) {
             this.app.use(livereload());

@@ -1,8 +1,6 @@
-global.Promise = global.Promise || require('es6-promise').Promise;
 var fs = require('fs');
 var gulp = require('gulp');
 var runSequence = require('run-sequence');
-var plumber = require('gulp-plumber');
 var typescript = require('gulp-typescript');
 var sourcemaps = require('gulp-sourcemaps');
 var rjs = require('gulp-requirejs');

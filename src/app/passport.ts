@@ -3,9 +3,7 @@ import passport = require('passport');
 var TwitterStrategy = require('passport-twitter').Strategy;
 var secret = require('../secret.json');
 
-var BASE_URL = 'http://apps.prgrssv.net';
-
-export function init() {
+export function init(baseURL: string) {
     passport.serializeUser(function (user: any, done: Function) {
         done(null, user);
     });
@@ -18,7 +16,7 @@ export function init() {
         {
             consumerKey: secret.twitter.consumer_key,
             consumerSecret: secret.twitter.consumer_secret,
-            callbackURL: BASE_URL + '/auth/twitter/callback'
+            callbackURL: baseURL + '/auth/twitter/callback'
         },
         (token: string, tokenSecret: string, profile: any, done: Function) => {
             done(null, {

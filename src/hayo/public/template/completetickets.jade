@@ -1,0 +1,14 @@
+ul.list-group
+  li.list-group-item(ng-repeat='ticket in closeTickets', ng-cloak)
+    div
+      span(ng-init='user = ticket.openUser')
+        include user.jade
+      small(style='margin-left: 0.5em; margin-right: 0.5em;') さんのネタを
+      span(ng-init='user = ticket.progressUser')
+        include user.jade
+      small(style='margin-left: 0.5em;') さんが実現しました
+    h2.col-xs-12
+      a(ng-href='{{ticket.url}}') {{ticket.title}}
+      small(style='margin-left: 0.5em;') を作ったよ！
+    p.text-right
+      small {{ticket.createdAt | dateToDisplay}}

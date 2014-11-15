@@ -6,6 +6,8 @@ import openShift = require('./app/openshift');
 import HttpServer = require('./app/httpserver');
 import files = require('./util/files');
 
+var BASE_URL = 'http://apps.prgrssv.net';
+
 function main() {
     var LOG_DIRECTORY = openShift.dataDir + 'log';
     files.mkdirIfNotExists(openShift.dataDir)
@@ -34,9 +36,11 @@ function main() {
             new HttpServer().listen(
                 openShift.port,
                 openShift.localIp,
+                openShift.debug ? 'http://127.0.0.1:8080' : 'http://apps.prgrssv.net',
                 openShift.dataDir,
                 openShift.debug);
         });
 }
 
 main();
+
