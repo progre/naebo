@@ -16,7 +16,7 @@ div
       ng-repeat='ticket in openTickets',
       ng-class='{ disabled: ticket.deletedAt != null }',
       ng-cloak)
-      div(ng-init='user = ticket.openUser')
+      span(ng-init='user = ticket.openUser')
         include user.jade
         small(style='margin-left: 0.5em;') さんから
       h2.col-xs-12

@@ -3,9 +3,9 @@
 import express = require('express');
 import callbacks = require('../util/callbacks');
 import SessionStore = require('../app/sessionstore');
-import tickets = require('./resource/tickets');
 import Database = require('./infrastructure/database');
-import dbs = require('./infrastructure/databases');
+import rps = require('./domain/repos/reposes');
+import Repos = require('./domain/repos/repos');
 
 class Hayo {
     static new(
@@ -15,14 +15,14 @@ class Hayo {
         dataDir: string
         ) {
         return Database.create(dataDir)
-            .then(database => new Hayo(app, io, sessionStore, database));
+            .then(database => new Hayo(app, io, sessionStore, new Repos(database)));
     }
 
     constructor(
         private app: express.IRouter<void>,
         private io: SocketIO.Server,
         private sessionStore: SessionStore,
-        private database: Database) {
+        private repos: Repos) {
 
         app.get('/auth', (req: express.Request, res: express.Response) => {
             var session = (<any>req).session;
@@ -38,129 +38,120 @@ class Hayo {
         io.on('connect', callbacks.tryFunc(socket => this.connect(socket)));
     }
 
-    routes() {
-        return {
-            tickets: tickets(this.io, this.database)
-        };
-    }
-
     private connect(socket: SocketIO.Socket) {
         console.log('connected');
         (<Promise<any>>this.sessionStore.get(socket.request))
             .then(session => {
-                return initSocket(socket, this.io, session, this.database);
+                return this.initSocket(socket, session);
             })
             .catch(err => console.error(err.stack));
     }
 
-    private defineEvents(socket: SocketIO.Socket) {
-    }
-}
-
-function initSocket(socket: SocketIO.Socket, io: SocketIO.Server, session: any, database: Database) {
-    socket.on('logout', callbacks.tryFunc((guid: string) => {
-        session.passport = null;
-        session.save();
-        socket.emit(guid);
-    }));
-
-    socket.on('ticket', callbacks.tryFunc((args: any, guid: string) => {
-        getUser(session, database)
-            .then(user => {
-                if (user == null) {
-                    return Promise.reject(new Error('user not found'));
-                }
-                return database.putTicket(user.id, args.title);
-            })
-            .then((ticket) => {
-                if (args.isPost) {
-                    // twitterにPostする☀
-                }
-            })
-            .catch(err => console.error(err.stack))
-            .then(() => {
-                socket.emit(guid);
-                return emitTickets(database, io);
-            })
-            .catch(err => console.error(err.stack));
-    }));
-
-    socket.on('delete ticket', callbacks.tryFunc((ticketId: string, guid: string) => {
-        if (!isString(ticketId))
-            throw new Error('Type mismatch');
-        getUser(session, database)
-            .then(user => database.deleteTicket(user.id, ticketId))
-            .then(() => socket.emit(guid))
-            .then(() => emitTickets(database, io))
-            .catch(err => console.error(err.stack));
-    }));
-
-    socket.on('progress ticket', callbacks.tryFunc((ticketId: string, guid: string) => {
-        if (!isString(ticketId))
-            throw new Error('Type mismatch');
-        getUser(session, database)
-            .then(user => database.progressTicket(user.id, ticketId))
-            .then(() => socket.emit(guid))
-            .then(() => emitTickets(database, io))
-            .catch(err => console.error(err.stack));
-    }));
-
-    socket.on('reverse ticket', callbacks.tryFunc((ticketId: string, guid: string) => {
-        if (!isString(ticketId))
-            throw new Error('Type mismatch');
-        getUser(session, database)
-            .then(user => database.reverseTicket(user.id, ticketId))
-            .then(() => socket.emit(guid))
-            .then(() => emitTickets(database, io))
-            .catch(err => console.error(err.stack));
-    }));
-
-    socket.on('complete ticket', callbacks.tryFunc((ticketId: string, url: string, guid: string) => {
-        if (!isString(ticketId) || !isString(url))
-            throw new Error('Type mismatch');
-        getUser(session, database)
-            .then(user => database.completeTicket(user.id, ticketId, url))
-            .then(() => socket.emit(guid))
-            .then(() => emitTickets(database, io))
-            .catch(err => console.error(err.stack));
-    }));
-
-    return Promise.all([
-        getUser(session, database)
-            .then(user => socket.emit('user', user)),
-        emitTickets(database, io)
-    ]);
-}
-
-function emitTickets(database: Database, io: SocketIO.Server) {
-    return Promise
-        .all([
-            database.tickets(dbs.TicketType.open),
-            database.tickets(dbs.TicketType.inprogress),
-            database.tickets(dbs.TicketType.close)
-        ])
-        .then(tickets => io.emit('tickets', {
-            opens: tickets[0],
-            inprogresses: tickets[1],
-            closes: tickets[2]
+    private initSocket(socket: SocketIO.Socket, session: any) {
+        socket.on('logout', callbacks.tryFunc((guid: string) => {
+            session.passport = null;
+            session.save();
+            socket.emit(guid);
         }));
-}
 
-function getUser(session: any, database: Database) {
-    var passportUser = session.passport.user;
-    if (passportUser == null) {
-        return Promise.resolve<any>(null);
-    } else {
-        return database
-            .getOrCreateUser(passportUser.provider, passportUser.providerId, passportUser.displayName)
-            .then(users => ({
-                id: users[0].get('id'),
-                provider: passportUser.provider,
-                providerId: passportUser.providerId,
-                displayName: passportUser.displayName,
-                photo: passportUser.photo
+        socket.on('ticket', callbacks.tryFunc((args: any, guid: string) => {
+            var user = getUser(session);
+            if (user == null)
+                throw new Error('user not found');
+            this.repos.database.putTicket(user, args.title)
+                .then((ticket) => {
+                    if (args.isPost) {
+                        // twitterにPostする☀
+                    }
+                })
+                .catch(err => console.error(err.stack))
+                .then(() => {
+                    socket.emit(guid);
+                    return this.emitTickets();
+                })
+                .catch(err => console.error(err.stack));
+        }));
+
+        socket.on('delete ticket', callbacks.tryFunc((ticketId: string, guid: string) => {
+            if (!isString(ticketId))
+                throw new Error('Type mismatch');
+            var user = getUser(session);
+            if (user == null)
+                throw new Error('user not found');
+            this.repos.database.deleteTicket(user, ticketId)
+                .then(() => socket.emit(guid))
+                .then(() => this.emitTickets())
+                .catch(err => console.error(err.stack));
+        }));
+
+        socket.on('progress ticket', callbacks.tryFunc((ticketId: string, guid: string) => {
+            if (!isString(ticketId))
+                throw new Error('Type mismatch');
+            var user = getUser(session);
+            if (user == null)
+                throw new Error('user not found');
+            this.repos.database.progressTicket(user, ticketId)
+                .then(() => socket.emit(guid))
+                .then(() => this.emitTickets())
+                .catch(err => console.error(err.stack));
+        }));
+
+        socket.on('reverse ticket', callbacks.tryFunc((ticketId: string, guid: string) => {
+            if (!isString(ticketId))
+                throw new Error('Type mismatch');
+            var user = getUser(session);
+            if (user == null)
+                throw new Error('user not found');
+            this.repos.database.reverseTicket(user, ticketId)
+                .then(() => socket.emit(guid))
+                .then(() => this.emitTickets())
+                .catch(err => console.error(err.stack));
+        }));
+
+        socket.on('complete ticket', callbacks.tryFunc((ticketId: string, url: string, guid: string) => {
+            if (!isString(ticketId) || !isString(url))
+                throw new Error('Type mismatch');
+            var user = getUser(session);
+            if (user == null)
+                throw new Error('user not found');
+            this.repos.database.completeTicket(user, ticketId, url)
+                .then(() => socket.emit(guid))
+                .then(() => this.emitTickets())
+                .catch(err => console.error(err.stack));
+        }));
+
+        return Promise.all([
+            Promise.resolve(socket.emit('user', getUser(session))),
+            this.emitTickets()
+        ]);
+    }
+
+    private emitTickets() {
+        return Promise
+            .all([
+                this.repos.tickets(rps.TicketType.open),
+                this.repos.tickets(rps.TicketType.inprogress),
+                this.repos.tickets(rps.TicketType.close)
+            ])
+            .then(tickets => this.io.emit('tickets', {
+                opens: tickets[0],
+                inprogresses: tickets[1],
+                closes: tickets[2]
             }));
     }
+}
+
+function getUser(session: { passport: any }) {
+    var passportUser = session.passport.user;
+    if (passportUser == null) {
+        return null;
+    }
+    return {
+        provider: passportUser.provider,
+        providerId: passportUser.providerId,
+        displayName: passportUser.displayName,
+        photo: passportUser.photo
+    };
 }
 
 function index(
@@ -175,7 +166,7 @@ function index(
         options.io,
         options.sessionStore,
         options.dataDir)
-        .then(hayo => hayo.routes());
+        .then(hayo => ({}));
 }
 
 function isString(obj: any) {

@@ -17,6 +17,20 @@ export function each<T>(callback: (item: T) => any): (items: T[]) => Promise<T[]
     });
 }
 
+export function map<T, U>(items: T[], callbackfn: (value: T, index: number, array: T[]) => Promise<U>) {
+    return Promise.all(items.map(callbackfn));
+}
+
+export function safe<T>(reject: (e: any) => void, func: (...args: any[]) => T) {
+    return (...args: any[]) => {
+        try {
+            func.apply(this, args);
+        } catch (err) {
+            reject(err);
+        };
+    };
+}
+
 function isPromise(obj: any) {
     return obj != null && typeof obj.then === 'function';
 }
