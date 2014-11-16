@@ -24,6 +24,11 @@ var Ticket: {
 class Repos {
     private twitter = new Twitter();
 
+    static new(dataDir: string) {
+        return Database.new(dataDir)
+            .then(database => new Repos(database));
+    }
+
     constructor(public database: Database) {
     }
 

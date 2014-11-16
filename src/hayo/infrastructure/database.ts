@@ -11,7 +11,7 @@ var SERIAL = {
 };
 
 class Database {
-    static create(dataDir: string) {
+    static new(dataDir: string) {
         var sequelize = new Sequelize(null, null, null, {
             dialect: 'sqlite',
             storage: dataDir + 'database.sqlite'

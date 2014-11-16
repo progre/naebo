@@ -14,8 +14,8 @@ class Hayo {
         sessionStore: SessionStore,
         dataDir: string
         ) {
-        return Database.create(dataDir)
-            .then(database => new Hayo(app, io, sessionStore, new Repos(database)));
+        return Repos.new(dataDir)
+            .then(repos => new Hayo(app, io, sessionStore, repos));
     }
 
     constructor(

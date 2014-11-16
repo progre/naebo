@@ -34,8 +34,8 @@ function minutes(min: number) {
     return min < 10 ? '0' + min : min.toString();
 }
 
-app.controller('IndexController', ['$timeout', '$http', '$scope',
-    ($timeout: ng.ITimeoutService, $http: ng.IHttpService, $scope: any) => {
+app.controller('IndexController', ['$http', '$scope',
+    ($http: ng.IHttpService, $scope: any) => {
         var cache = ticketRepos.cachedTickets();
         $scope.openTickets = cache.opens;
         $scope.inprogressTickets = cache.inprogresses;
@@ -48,33 +48,6 @@ app.controller('IndexController', ['$timeout', '$http', '$scope',
         server.scopeOn('user', (user: any) => {
             $scope.user = user;
         }, $scope);
-
-        var deleteExecutings: any[] = [];
-        $scope.deleteCommand = {
-            execute: (ticket: any) => {
-                deleteExecutings.push(ticket);
-                $timeout(() => {
-                    ticket.deletedAt = new Date();
-                    deleteExecutings = deleteExecutings.filter(x => x !== ticket);
-                }, 1000);
-            },
-            canExecute: (ticket: any) => {
-                return deleteExecutings.indexOf(ticket) < 0;
-            }
-        };
-        var revertExecutings: any[] = [];
-        $scope.revertCommand = {
-            execute: (ticket: any) => {
-                revertExecutings.push(ticket);
-                $timeout(() => {
-                    ticket.deletedAt = null;
-                    revertExecutings = revertExecutings.filter(x => x !== ticket);
-                }, 1000);
-            },
-            canExecute: (ticket: any) => {
-                return revertExecutings.indexOf(ticket) < 0;
-            }
-        };
 
         $scope.delete = new StackablePromiseCommand($scope,
             ticketId => server.delete(ticketId));
@@ -93,6 +66,21 @@ app.controller('IndexController', ['$timeout', '$http', '$scope',
                 .then(() => {
                     $scope.user = null;
                 }));
+    }]);
+
+app.controller('NewTicketController', ['$http', '$scope',
+    ($http: ng.IHttpService, $scope: any) => {
+        $scope.open = () => $scope.isOpen = true;
+        $scope.close = () => $scope.isOpen = false;
+
+        $scope.command = new PromiseCommand($scope, () => {
+            var title: string = $scope.title;
+            $scope.title = '';
+            return ticketRepos.putTicket(title, $scope.isPost)
+                .then(() => {
+                    $scope.close();
+                }).catch(e => { });
+        });
     }]);
 
 class PromiseCommand {
@@ -145,30 +133,5 @@ class StackablePromiseCommand {
         return this.executings.indexOf(arg) < 0;
     }
 }
-
-app.controller('NewTicketController', ['$http', '$scope',
-    ($http: ng.IHttpService, $scope: any) => {
-        $scope.open = () => $scope.isOpen = true;
-        $scope.close = () => $scope.isOpen = false;
-
-        var isExecuting = false;
-        $scope.command = {
-            execute: () => {
-                isExecuting = true;
-                var title: string = $scope.title;
-                $scope.title = '';
-                ticketRepos.putTicket(title, $scope.isPost)
-                    .catch(e => { })
-                    .then(() => {
-                        isExecuting = false;
-                        $scope.close();
-                    });
-            },
-            canExecute: () => {
-                return !isExecuting;
-            }
-        };
-        //$scope.command = new PromiseCommand($scope, () => server.putTicket
-    }]);
 
 angular.bootstrap(document, ['app']);
