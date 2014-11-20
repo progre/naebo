@@ -14,7 +14,6 @@ div
       img(src='/img/ajax-loader.gif')
     li.list-group-item.listanim.anim148px(
       ng-repeat='ticket in openTickets',
-      ng-class='{ disabled: ticket.deletedAt != null }',
       ng-cloak)
       a(ng-href='https://twitter.com/intent/user?user_id={{ticket.openUser.providerId}}')
         | {{ticket.openUser.displayName}}

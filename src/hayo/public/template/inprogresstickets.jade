@@ -1,7 +1,6 @@
 ul.list-group
-  li.list-group-item(
+  li.list-group-item.listanim.anim148px(
     ng-repeat='ticket in inprogressTickets',
-    ng-class='{ disabled: ticket.deletedAt != null }',
     ng-cloak)
     div
       a(ng-href='https://twitter.com/intent/user?user_id={{ticket.openUser.providerId}}')
@@ -10,17 +9,17 @@ ul.list-group
       a(ng-href='https://twitter.com/intent/user?user_id={{ticket.progressUser.providerId}}')
         | {{ticket.progressUser.displayName}}
       small(style='margin-left: 0.5em;') さんが作っています
-    h2.col-xs-12 {{ticket.title}} <small>を作るよ！</small>
+    h2.col-xs-12 {{ticket.title}}<small> を作るよ！</small>
     p.text-right
       small {{ticket.createdAt | dateToDisplay}}
     .text-right
-      button.btn.btn-default(
+      button.btn.btn-danger(
         style='margin-left: 1em;',
         ng-class='{active: isOpenDropout}',
         ng-show='reverse.isVisible(ticket)',
         ng-click='isOpenDropout = !isOpenDropout; isOpenCreated = false;'
         ) 無理でした
-      button.btn.btn-primary(
+      button.btn.btn-default(
         style='margin-left: 1em;',
         ng-class='{active: isOpenCreated}',
         ng-show='complete.isVisible(ticket)',

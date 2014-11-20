@@ -1,5 +1,7 @@
 ul.list-group
-  li.list-group-item(ng-repeat='ticket in closeTickets', ng-cloak)
+  li.list-group-item.listanim.anim148px(
+    ng-repeat='ticket in closeTickets',
+    ng-cloak)
     div
       a(ng-href='https://twitter.com/intent/user?user_id={{ticket.openUser.providerId}}')
         | {{ticket.openUser.displayName}}
@@ -13,7 +15,7 @@ ul.list-group
     p.text-right
       small {{ticket.createdAt | dateToDisplay}}
     .text-right
-      button.btn.btn-default(
+      button.btn.btn-danger(
         style='margin-left: 1em;',
         ng-class='{active: isOpenReverse}',
         ng-show='reverseToInprogress.isVisible(ticket)',
