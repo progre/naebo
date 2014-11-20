@@ -9,8 +9,7 @@ var apiRoot = appRoot + 'api/1/';
 
 var app = angular.module('app', ['ngAnimate', 'ngCookies']);
 
-var server = new Server(apiRoot);
-var ticketRepos = new TicketRepos(server);
+var ticketRepos = new TicketRepos(new Server(apiRoot));
 
 app.config([
     '$locationProvider',
@@ -45,45 +44,46 @@ app.controller('IndexController', ['$http', '$scope',
             console.log('update tickets');
             updateTickets($scope.openTickets, $scope.inprogressTickets, $scope.closeTickets);
         }, $scope);
+        var server = ticketRepos.server;
         server.scopeOn('user', (user: any) => {
             $scope.user = user;
         }, $scope);
 
         $scope.delete = new StackablePromiseCommand($scope,
-            ticket => server.delete(ticket.id),
+            ticket => server.emitMethod('delete ticket', ticket.id),
             null,
             ticket => $scope.user != null && equals($scope.user, ticket.openUser));
 
         $scope.likeOpen = new StackablePromiseCommand($scope,
-            ticket => server.likeOpen(ticket.id),
+            ticket => server.emitMethod('like open ticket', ticket.id),
             ticket => $scope.user != null);
 
         $scope.progress = new PromiseCommand($scope,
-            ticket => server.progress(ticket.id),
+            ticket => server.emitMethod('progress ticket', ticket.id),
             null,
             ticket => $scope.user != null);
 
         $scope.likeInprogress = new StackablePromiseCommand($scope,
-            ticket => server.likeInprogress(ticket.id),
+            ticket => server.emitMethod('like inprogress ticket', ticket.id),
             ticket => $scope.user != null);
 
         $scope.reverse = new PromiseCommand($scope,
-            ticket => server.reverse(ticket.id),
+            ticket => server.emitMethod('reverse ticket', ticket.id),
             null,
             ticket => $scope.user != null && equals($scope.user, ticket.progressUser));
 
         $scope.complete = new PromiseCommand($scope,
-            (ticket, url) => server.complete(ticket.id, url),
+            (ticket, url) => server.emitMethod('complete ticket', ticket.id, url),
             null,
             ticket => $scope.user != null && equals($scope.user, ticket.progressUser));
 
         $scope.reverseToInprogress = new PromiseCommand($scope,
-            ticket => server.reverseToInprogress(ticket.id),
+            ticket => server.emitMethod('reverse to inprogress ticket', ticket.id),
             null,
             ticket => $scope.user != null && equals($scope.user, ticket.progressUser));
 
         $scope.logout = new PromiseCommand($scope,
-            () => server.logout()
+            () => server.emitMethod('logout')
                 .then(() => {
                     $scope.user = null;
                 }));
@@ -97,7 +97,10 @@ app.controller('NewTicketController', ['$http', '$scope',
         $scope.command = new PromiseCommand($scope, () => {
             var title: string = $scope.title;
             $scope.title = '';
-            return ticketRepos.putTicket(title, $scope.isPost)
+            return ticketRepos.server.emitMethod('ticket', {
+                title: title,
+                isPost: $scope.isPost
+            })
                 .then(() => {
                     $scope.close();
                 }).catch(e => { });

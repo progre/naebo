@@ -2,7 +2,7 @@ import EventEmitter2 = require('eventemitter2');
 import Server = require('../../infrastructure/server');
 
 class TicketRepos extends EventEmitter2 {
-    constructor(private server: Server) {
+    constructor(public server: Server) {
         super();
         server.on('ticketsUpdated', (tickets: any) => {
             this.emit('updated', (openTickets: any[], inprogressTickets: any[], closeTickets: any[]) => {
@@ -29,14 +29,6 @@ class TicketRepos extends EventEmitter2 {
             inprogresses: fromStorageData(sessionStorage.getItem('inprogressTickets')),
             closes: fromStorageData(sessionStorage.getItem('closeTickets')),
         };
-    }
-
-    putTicket(title: string, isPost: boolean) {
-        return this.server.putTicket(title, isPost);
-    }
-
-    progress(ticketId: string) {
-        return this.server.progress(ticketId);
     }
 }
 
