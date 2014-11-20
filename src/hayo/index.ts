@@ -120,6 +120,18 @@ class Hayo {
                 .catch(err => console.error(err.stack));
         }));
 
+        socket.on('like inprogress ticket', callbacks.tryFunc((ticketId: string, guid: string) => {
+            if (!isString(ticketId))
+                throw new Error('Type mismatch');
+            var user = session.user();
+            if (user == null)
+                throw new Error('user not found');
+            this.repos.database.likeInprogressTicket(user, ticketId)
+                .then(() => socket.emit(guid))
+                .then(() => this.emitTickets())
+                .catch(err => console.error(err.stack) || console.trace());
+        }));
+
         socket.on('complete ticket', callbacks.tryFunc((ticketId: string, url: string, guid: string) => {
             if (!isString(ticketId) || !isString(url))
                 throw new Error('Type mismatch');

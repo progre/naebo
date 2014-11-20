@@ -71,7 +71,7 @@ class Database {
             .findAll({
                 where: { type: type },
                 order: [['ticket.id', 'DESC']],
-                include: [this.likeOpen]
+                include: [this.likeOpen, this.likeInprogress]
             }).then(instances => instances.map(x => ({
                 id: x['id'],
                 createdAt: x['createdAt'],
@@ -79,7 +79,8 @@ class Database {
                 url: x['url'],
                 openUser: toUser(x['openUserId']),
                 progressUser: toUser(x['progressUserId']),
-                likeOpens: x['LikeOpens'].length
+                likeOpens: x['LikeOpens'].length,
+                likeInprogresses: count(x['LikeInprogresses'])
             })));
     }
 
@@ -116,8 +117,8 @@ class Database {
             .then(ticket => ticket['getLikeOpens'](
                 { where: { userId: toUserId(user) } },
                 { transaction: t })
-                .then((likeOpen: SequelizeJS.Instance[]) => {
-                    if (likeOpen.length > 0)
+                .then((likeOpens: SequelizeJS.Instance[]) => {
+                    if (likeOpens.length > 0)
                         return;
                     return ticket['createLikeOpen'](
                         { userId: toUserId(user) },
@@ -142,6 +143,32 @@ class Database {
                         t.commit();
                     });
             });
+    }
+
+    likeInprogressTicket(user: rps.User, ticketId: string) {
+        return this.transaction().then(t => this.ticket.findOne(
+            {
+                where: { id: ticketId },
+                include: [this.likeInprogress]
+            },
+            { transaction: t })
+            .then(ticket => ticket['getLikeInprogresses'](
+                { where: { userId: toUserId(user) } },
+                { transaction: t })
+                .then((likeInprogresses: SequelizeJS.Instance[]) => {
+                    if (likeInprogresses.length > 0) {
+                        var likeInprogress = likeInprogresses[0];
+                        likeInprogress['count'] += 1;
+                        return likeInprogress.save({ transaction: t });
+                    }
+                    return ticket['createLikeInprogress'](
+                        {
+                            userId: toUserId(user),
+                            count: 1
+                        },
+                        { transaction: t });
+                }))
+            .then(() => t.commit()));
     }
 
     reverseTicket(user: rps.User, ticketId: string) {
@@ -183,6 +210,10 @@ class Database {
     private transaction() {
         return this.sequelize.transaction({ autocommit: false });
     }
+}
+
+function count(list: { count: number }[]) {
+    return list.reduce<number>((sum, current) => sum + current.count, 0);
 }
 
 function toUser(userId: string) {

@@ -63,6 +63,10 @@ app.controller('IndexController', ['$http', '$scope',
             null,
             ticket => $scope.user != null);
 
+        $scope.likeInprogress = new StackablePromiseCommand($scope,
+            ticket => server.likeInprogress(ticket.id),
+            ticket => $scope.user != null);
+
         $scope.reverse = new PromiseCommand($scope,
             ticket => server.reverse(ticket.id),
             null,

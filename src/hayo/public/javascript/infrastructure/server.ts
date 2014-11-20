@@ -42,6 +42,10 @@ class Server extends EventEmitter2 {
         return this.emitMethod('progress ticket', ticketId);
     }
 
+    likeInprogress(ticketId: string) {
+        return this.emitMethod('like inprogress ticket', ticketId);
+    }
+
     reverse(ticketId: string) {
         return this.emitMethod('reverse ticket', ticketId);
     }

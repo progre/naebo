@@ -26,8 +26,12 @@ ul.list-group
         ng-show='complete.isVisible(ticket)',
         ng-click='isOpenCreated = !isOpenCreated; isOpenDropout = false;'
         ) できたよ！
-      //- button.btn.btn-primary(style='margin-left: 1em;') はよ！
-      //- .badge 100
+      button.btn.btn-primary(style='margin-left: 1em;'
+        ng-show='likeInprogress.isVisible(ticket)',
+        ng-disabled='!likeInprogress.isEnabled(ticket)',
+        ng-click='likeInprogress.execute(ticket)'
+        ) はよ！
+      .badge {{ticket.likeInprogresses}}
     .panel.panel-default.anim.anim64px(style='margin-top: 1em;',
       ng-show='isOpenDropout')
       .panel-body
