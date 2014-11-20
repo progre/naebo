@@ -19,6 +19,12 @@ var Ticket: {
         providerId: string;
         displayName: string;
     };
+    likeOpens: {
+        provider: string;
+        providerId: string;
+    }[];
+    likeOpenCount: number;
+    likedOpen: boolean;
 };
 
 class Repos {

@@ -2,6 +2,7 @@ import express = require('express');
 var session = require('express-session');
 import cookieParser = require('cookie-parser');
 import callbacks = require('../util/callbacks');
+import Session = require('./session');
 
 class SessionStore {
     store = new session.MemoryStore();
@@ -18,7 +19,7 @@ class SessionStore {
     }
 
     get(request: express.Request) {
-        return new Promise((resolve, reject) => {
+        return new Promise<Session>((resolve, reject) => {
             var parseCookie = cookieParser('Miserable Fate');
             parseCookie(request, null, (err: any) => {
                 if (err != null) {
@@ -38,7 +39,7 @@ class SessionStore {
                     session.save = () => {
                         this.store.set(sid, session);
                     };
-                    resolve(session);
+                    resolve(new Session(session));
                 }));
             });
         });

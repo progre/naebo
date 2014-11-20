@@ -5,7 +5,6 @@ class TicketRepos extends EventEmitter2 {
     constructor(private server: Server) {
         super();
         server.on('ticketsUpdated', (tickets: any) => {
-            console.log(tickets);
             this.emit('updated', (openTickets: any[], inprogressTickets: any[], closeTickets: any[]) => {
                 merge(openTickets, tickets.opens);
                 removeStrayTickets(openTickets, tickets.opens);
@@ -78,6 +77,7 @@ function merge(a: { id: number }[], b: { id: number }[]) {
         for (; ;) {
             if (i >= 0) {
                 if (a[i].id === itemB.id) {
+                    mergeObject(a[i], itemB);
                     i--;
                     break;
                 }
@@ -89,6 +89,12 @@ function merge(a: { id: number }[], b: { id: number }[]) {
             a.splice(i + 1, 0, itemB);
             break;
         }
+    }
+}
+
+function mergeObject(a: any, b: any) {
+    for (var key in b) {
+        a[key] = b[key];
     }
 }
 

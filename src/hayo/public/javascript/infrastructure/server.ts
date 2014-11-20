@@ -34,6 +34,10 @@ class Server extends EventEmitter2 {
         return this.emitMethod('delete ticket', ticketId);
     }
 
+    likeOpen(ticketId: string) {
+        return this.emitMethod('like open ticket', ticketId);
+    }
+
     progress(ticketId: string) {
         return this.emitMethod('progress ticket', ticketId);
     }

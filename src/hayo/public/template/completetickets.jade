@@ -1,11 +1,11 @@
 ul.list-group
   li.list-group-item(ng-repeat='ticket in closeTickets', ng-cloak)
     div
-      span(ng-init='user = ticket.openUser')
-        include user.jade
+      a(ng-href='https://twitter.com/intent/user?user_id={{ticket.openUser.providerId}}')
+        | {{ticket.openUser.displayName}}
       small(style='margin-left: 0.5em; margin-right: 0.5em;') さんのネタを
-      span(ng-init='user = ticket.progressUser')
-        include user.jade
+      a(ng-href='https://twitter.com/intent/user?user_id={{ticket.progressUser.providerId}}')
+        | {{ticket.progressUser.displayName}}
       small(style='margin-left: 0.5em;') さんが実現しました
     h2.col-xs-12
       a(ng-href='{{ticket.url}}') {{ticket.title}}

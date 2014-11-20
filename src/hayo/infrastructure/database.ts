@@ -42,33 +42,45 @@ class Database {
             paranoid: true
         });
 
-    //private like = this.sequelize.define('Like',
-    //    {
-    //        id: SERIAL,
-    //        userId: Sequelize.INTEGER,
-    //        ticketId: Sequelize.INTEGER
-    //    }, {
-    //        timestamps: false
-    //    });
+    private likeOpen = this.sequelize.define('LikeOpen',
+        {
+            id: SERIAL,
+            userId: Sequelize.STRING
+        }, {
+            timestamps: false
+        });
+
+    private likeInprogress = this.sequelize.define('LikeInprogress',
+        {
+            id: SERIAL,
+            userId: Sequelize.STRING,
+            count: Sequelize.INTEGER
+        }, {
+            timestamps: false
+        });
 
     constructor(private sequelize: Sequelize) {
+        this.ticket.hasMany(this.likeOpen);
+        this.likeOpen.belongsTo(this.ticket);
+        this.ticket.hasMany(this.likeInprogress);
+        this.likeInprogress.belongsTo(this.ticket);
     }
 
     tickets(type: rps.TicketType) {
         return this.ticket
             .findAll({
                 where: { type: type },
-                order: [['ticket.id', 'DESC']]
-            }).then(instances => instances.map(x => {
-                return {
-                    id: x['id'],
-                    createdAt: x['createdAt'],
-                    title: x['title'],
-                    url: x['url'],
-                    openUser: toUser(x['openUserId']),
-                    progressUser: toUser(x['progressUserId'])
-                };
-            }));
+                order: [['ticket.id', 'DESC']],
+                include: [this.likeOpen]
+            }).then(instances => instances.map(x => ({
+                id: x['id'],
+                createdAt: x['createdAt'],
+                title: x['title'],
+                url: x['url'],
+                openUser: toUser(x['openUserId']),
+                progressUser: toUser(x['progressUserId']),
+                likeOpens: x['LikeOpens'].length
+            })));
     }
 
     putTicket(user: rps.User, title: string) {
@@ -80,7 +92,7 @@ class Database {
     }
 
     deleteTicket(user: rps.User, ticketId: string) {
-        return this.sequelize.transaction({ autocommit: false })
+        return this.transaction()
             .then(t => {
                 return this.ticket.findOne(
                     { where: { id: ticketId } },
@@ -94,8 +106,28 @@ class Database {
             });
     }
 
+    likeOpenTicket(user: rps.User, ticketId: string) {
+        return this.transaction().then(t => this.ticket.findOne(
+            {
+                where: { id: ticketId },
+                include: [this.likeOpen]
+            },
+            { transaction: t })
+            .then(ticket => ticket['getLikeOpens'](
+                { where: { userId: toUserId(user) } },
+                { transaction: t })
+                .then((likeOpen: SequelizeJS.Instance[]) => {
+                    if (likeOpen.length > 0)
+                        return;
+                    return ticket['createLikeOpen'](
+                        { userId: toUserId(user) },
+                        { transaction: t });
+                }))
+            .then(() => t.commit()));
+    }
+
     progressTicket(user: rps.User, ticketId: string) {
-        return this.sequelize.transaction({ autocommit: false })
+        return this.transaction()
             .then(t => {
                 return this.ticket.findOne(
                     { where: { id: ticketId } },
@@ -113,7 +145,7 @@ class Database {
     }
 
     reverseTicket(user: rps.User, ticketId: string) {
-        return this.sequelize.transaction({ autocommit: false })
+        return this.transaction()
             .then(t => {
                 return this.ticket.findOne(
                     { where: { id: ticketId, progressUserId: toUserId(user) } },
@@ -131,7 +163,7 @@ class Database {
     }
 
     completeTicket(user: rps.User, ticketId: string, url: string) {
-        return this.sequelize.transaction({ autocommit: false })
+        return this.transaction()
             .then(t => {
                 return this.ticket.findOne(
                     { where: { id: ticketId, progressUserId: toUserId(user) } },
@@ -147,6 +179,10 @@ class Database {
                     });
             });
     }
+
+    private transaction() {
+        return this.sequelize.transaction({ autocommit: false });
+    }
 }
 
 function toUser(userId: string) {
@@ -159,7 +195,7 @@ function toUser(userId: string) {
     };
 }
 
-function toUserId(user:rps.User) {
+function toUserId(user: rps.User) {
     return user.provider + '-' + user.providerId;
 }
 

@@ -50,16 +50,28 @@ app.controller('IndexController', ['$http', '$scope',
         }, $scope);
 
         $scope.delete = new StackablePromiseCommand($scope,
-            ticketId => server.delete(ticketId));
+            ticket => server.delete(ticket.id),
+            null,
+            ticket => $scope.user != null && equals($scope.user, ticket.openUser));
+
+        $scope.likeOpen = new StackablePromiseCommand($scope,
+            ticket => server.likeOpen(ticket.id),
+            ticket => $scope.user != null);
 
         $scope.progress = new PromiseCommand($scope,
-            ticketId => server.progress(ticketId));
+            ticket => server.progress(ticket.id),
+            null,
+            ticket => $scope.user != null);
 
         $scope.reverse = new PromiseCommand($scope,
-            ticketId => server.reverse(ticketId));
+            ticket => server.reverse(ticket.id),
+            null,
+            ticket => $scope.user != null && equals($scope.user, ticket.progressUser));
 
         $scope.complete = new PromiseCommand($scope,
-            (ticketId, url) => server.complete(ticketId, url));
+            (ticket, url) => server.complete(ticket.id, url),
+            null,
+            ticket => $scope.user != null && equals($scope.user, ticket.progressUser));
 
         $scope.logout = new PromiseCommand($scope,
             () => server.logout()
@@ -83,16 +95,24 @@ app.controller('NewTicketController', ['$http', '$scope',
         });
     }]);
 
+function equals(a: { provider: string; providerId: string; }, b: { provider: string; providerId: string; }) {
+    return a.provider === b.provider && a.providerId === b.providerId;
+}
+
 class PromiseCommand {
     private executing = false;
 
-    constructor(private $scope: any, private _execute: (...args: any[]) => Promise<any>) {
+    constructor(
+        private $scope: any,
+        private _execute: (...args: any[]) => Promise<any>,
+        private _isEnabled?: (...args: any[]) => boolean,
+        private _isVisible?: (...args: any[]) => boolean) {
     }
 
     execute(...args: any[]) {
-        if (this.executing) {
+        if (!this.isVisible.apply(this, arguments)
+            || !this.isEnabled.apply(this, arguments))
             return;
-        }
         this.executing = true;
         (<Promise<any>>this._execute.apply(this, args))
             .then(() => {
@@ -103,19 +123,29 @@ class PromiseCommand {
             });
     }
 
-    canExecute() {
-        return !this.executing;
+    isEnabled(...args: any[]) {
+        return !this.executing
+            && (this._isEnabled == null || this._isEnabled.apply(this, arguments));
+    }
+
+    isVisible(...args: any[]) {
+        return this._isVisible == null || this._isVisible.apply(this, arguments);
     }
 }
 
 class StackablePromiseCommand {
     private executings: any[] = [];
 
-    constructor(private $scope: any, private _execute: (arg: any) => Promise<any>) {
+    constructor(
+        private $scope: any,
+        private _execute: (arg: any) => Promise<any>,
+        private _isEnabled?: (...args: any[]) => boolean,
+        private _isVisible?: (...args: any[]) => boolean) {
     }
 
     execute(arg: any) {
-        if (!this.canExecute(arg))
+        if (!this.isVisible(arg)
+            || !this.isEnabled(arg))
             return;
         this.executings.push(arg);
         this._execute(arg)
@@ -129,8 +159,13 @@ class StackablePromiseCommand {
             });
     }
 
-    canExecute(arg: any) {
-        return this.executings.indexOf(arg) < 0;
+    isEnabled(arg: any) {
+        return this.executings.indexOf(arg) < 0
+            && (this._isEnabled == null || this._isEnabled.apply(this, arguments));
+    }
+
+    isVisible(arg: any) {
+        return this._isVisible == null || this._isVisible.apply(this, arguments);
     }
 }
 

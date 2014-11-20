@@ -21,6 +21,11 @@ export function map<T, U>(items: T[], callbackfn: (value: T, index: number, arra
     return Promise.all(items.map(callbackfn));
 }
 
+export function all<T>(items: T[], callbackfn: (value: T, index: number, array: T[]) => Promise<void>) {
+    Promise.all(items.map(callbackfn));
+    return items;
+}
+
 export function safe<T>(reject: (e: any) => void, func: (...args: any[]) => T) {
     return (...args: any[]) => {
         try {

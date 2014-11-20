@@ -3,6 +3,7 @@
 import express = require('express');
 import callbacks = require('../util/callbacks');
 import SessionStore = require('../app/sessionstore');
+import Session = require('../app/session');
 import Database = require('./infrastructure/database');
 import rps = require('./domain/repos/reposes');
 import Repos = require('./domain/repos/repos');
@@ -40,22 +41,21 @@ class Hayo {
 
     private connect(socket: SocketIO.Socket) {
         console.log('connected');
-        (<Promise<any>>this.sessionStore.get(socket.request))
+        this.sessionStore.get(socket.request)
             .then(session => {
                 return this.initSocket(socket, session);
             })
             .catch(err => console.error(err.stack));
     }
 
-    private initSocket(socket: SocketIO.Socket, session: any) {
+    private initSocket(socket: SocketIO.Socket, session: Session) {
         socket.on('logout', callbacks.tryFunc((guid: string) => {
-            session.passport = null;
-            session.save();
+            session.logout();
             socket.emit(guid);
         }));
 
         socket.on('ticket', callbacks.tryFunc((args: any, guid: string) => {
-            var user = getUser(session);
+            var user = session.user();
             if (user == null)
                 throw new Error('user not found');
             this.repos.database.putTicket(user, args.title)
@@ -75,7 +75,7 @@ class Hayo {
         socket.on('delete ticket', callbacks.tryFunc((ticketId: string, guid: string) => {
             if (!isString(ticketId))
                 throw new Error('Type mismatch');
-            var user = getUser(session);
+            var user = session.user();
             if (user == null)
                 throw new Error('user not found');
             this.repos.database.deleteTicket(user, ticketId)
@@ -84,10 +84,22 @@ class Hayo {
                 .catch(err => console.error(err.stack));
         }));
 
+        socket.on('like open ticket', callbacks.tryFunc((ticketId: string, guid: string) => {
+            if (!isString(ticketId))
+                throw new Error('Type mismatch');
+            var user = session.user();
+            if (user == null)
+                throw new Error('user not found');
+            this.repos.database.likeOpenTicket(user, ticketId)
+                .then(() => socket.emit(guid))
+                .then(() => this.emitTickets())
+                .catch(err => console.error(err.stack) || console.trace());
+        }));
+
         socket.on('progress ticket', callbacks.tryFunc((ticketId: string, guid: string) => {
             if (!isString(ticketId))
                 throw new Error('Type mismatch');
-            var user = getUser(session);
+            var user = session.user();
             if (user == null)
                 throw new Error('user not found');
             this.repos.database.progressTicket(user, ticketId)
@@ -99,7 +111,7 @@ class Hayo {
         socket.on('reverse ticket', callbacks.tryFunc((ticketId: string, guid: string) => {
             if (!isString(ticketId))
                 throw new Error('Type mismatch');
-            var user = getUser(session);
+            var user = session.user();
             if (user == null)
                 throw new Error('user not found');
             this.repos.database.reverseTicket(user, ticketId)
@@ -111,7 +123,7 @@ class Hayo {
         socket.on('complete ticket', callbacks.tryFunc((ticketId: string, url: string, guid: string) => {
             if (!isString(ticketId) || !isString(url))
                 throw new Error('Type mismatch');
-            var user = getUser(session);
+            var user = session.user();
             if (user == null)
                 throw new Error('user not found');
             this.repos.database.completeTicket(user, ticketId, url)
@@ -121,7 +133,7 @@ class Hayo {
         }));
 
         return Promise.all([
-            Promise.resolve(socket.emit('user', getUser(session))),
+            Promise.resolve(socket.emit('user', session.user())),
             this.emitTickets()
         ]);
     }
@@ -141,17 +153,16 @@ class Hayo {
     }
 }
 
-function getUser(session: { passport: any }) {
-    var passportUser = session.passport.user;
-    if (passportUser == null) {
-        return null;
+function toArray<T>(obj: { [id: number]: T }) {
+    var list: T[] = [];
+    for (var key in obj) {
+        list.push(obj[key]);
     }
-    return {
-        provider: passportUser.provider,
-        providerId: passportUser.providerId,
-        displayName: passportUser.displayName,
-        photo: passportUser.photo
-    };
+    return list;
+}
+
+function isString(obj: any) {
+    return typeof obj === 'string';
 }
 
 function index(
@@ -167,10 +178,6 @@ function index(
         options.sessionStore,
         options.dataDir)
         .then(hayo => ({}));
-}
-
-function isString(obj: any) {
-    return typeof obj === 'string';
 }
 
 export = index;

@@ -16,9 +16,9 @@ div
       ng-repeat='ticket in openTickets',
       ng-class='{ disabled: ticket.deletedAt != null }',
       ng-cloak)
-      span(ng-init='user = ticket.openUser')
-        include user.jade
-        small(style='margin-left: 0.5em;') さんから
+      a(ng-href='https://twitter.com/intent/user?user_id={{ticket.openUser.providerId}}')
+        | {{ticket.openUser.displayName}}
+      small(style='margin-left: 0.5em;') さんから
       h2.col-xs-12
         | {{ticket.title}}
         small(style='margin-left: 0.5em;') を作って！
@@ -27,29 +27,32 @@ div
       .text-right
         span(ng-show='ticket.deletedAt == null')
           button.btn.btn-danger(
-            ng-show='user != null && user.id == ticket.openUser.id',
-            ng-click='delete.execute(ticket.id)',
-            ng-disabled='!delete.canExecute(ticket.id)'
+            ng-show='delete.isVisible(ticket)',
+            ng-disabled='!delete.isEnabled(ticket)',
+            ng-click='delete.execute(ticket)'
             ) 削除
           button.btn.btn-default(style='margin-left: 1em;',
             ng-class='{active: isOpenStartProgress}',
-            ng-show='user != null',
+            ng-show='progress.isVisible(ticket)',
             ng-click='isOpenStartProgress = !isOpenStartProgress'
             ) やるよ！
-          //- button.btn.btn-primary(style='margin-left: 1em;')
-            | いいね！
-          .badge {{ticket.likes}}
-        span(ng-show='ticket.deletedAt != null')
+          button.btn.btn-primary(style='margin-left: 1em;',
+            ng-show='likeOpen.isVisible(ticket)',
+            ng-disabled='!likeOpen.isEnabled(ticket)',
+            ng-click='likeOpen.execute(ticket)'
+            ) いいね！
+          .badge {{ticket.likeOpens}}
+        //- span(ng-show='ticket.deletedAt != null')
           button.btn.btn-default(
-            ng-click='revertCommand.execute(ticket)',
-            ng-disabled='!revertCommand.canExecute(ticket)'
+            ng-disabled='!revertCommand.canExecute(ticket)',
+            ng-click='revertCommand.execute(ticket)'
             ) 元に戻す
       .panel.panel-default.anim.anim64px(style='margin-top: 1em;',
         ng-show='isOpenStartProgress')
         .panel-body
           form.form-inline.text-right(
             role='form',
-            ng-submit='progress.execute(ticket.id)')
+            ng-submit='progress.execute(ticket)')
             .form-group {{user.displayName}} 「{{ticket.title}} を作るよ！」
             .checkbox(style='margin-left: 1em;')
               //- label
@@ -61,7 +64,7 @@ div
                 ) 閉じる
               input.btn.btn-primary(style='margin-left: 1em;',
                 type='submit', value='宣言',
-                ng-disabled='!progress.canExecute()')
+                ng-disabled='!progress.isEnabled(ticket)')
   div(ng-controller='NewTicketController')
     .text-center.anim.anim34px(ng-hide='isOpen')
       button.btn.btn-default.btn-block(style='font-weight: bold;',

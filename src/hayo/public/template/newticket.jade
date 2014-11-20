@@ -18,4 +18,4 @@
         button.btn.btn-default(type='button', ng-click='close()') 閉じる
         input.btn.btn-primary(style='margin-left: 1em;',
           type='submit', value='作成',
-          ng-disabled='!command.canExecute()')
+          ng-disabled='!command.isEnabled()')
