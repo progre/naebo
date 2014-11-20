@@ -12,3 +12,19 @@ ul.list-group
       small(style='margin-left: 0.5em;') を作ったよ！
     p.text-right
       small {{ticket.createdAt | dateToDisplay}}
+    .text-right
+      button.btn.btn-default(
+        style='margin-left: 1em;',
+        ng-class='{active: isOpenReverse}',
+        ng-show='reverseToInprogress.isVisible(ticket)',
+        ng-click='isOpenReverse = !isOpenReverse'
+        ) 戻す
+    .panel.panel-default.anim.anim64px(style='margin-top: 1em;',
+      ng-show='isOpenReverse')
+      .panel-body
+        .text-right
+          button.btn.btn-default(ng-click='isOpenReverse = false') 閉じる
+          button.btn.btn-primary(style='margin-left: 1em;',
+            ng-click='reverseToInprogress.execute(ticket)',
+            ng-disabled='!reverseToInprogress.isEnabled()'
+            ) 拾われたネタに戻す

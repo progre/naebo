@@ -30,7 +30,6 @@ class Server extends EventEmitter2 {
     }
 
     delete(ticketId: string) {
-        console.log(ticketId);
         return this.emitMethod('delete ticket', ticketId);
     }
 
@@ -52,6 +51,10 @@ class Server extends EventEmitter2 {
 
     complete(ticketId: string, url: string) {
         return this.emitMethod('complete ticket', ticketId, url);
+    }
+
+    reverseToInprogress(ticketId: string) {
+        return this.emitMethod('reverse to inprogress ticket', ticketId);
     }
 
     logout() {

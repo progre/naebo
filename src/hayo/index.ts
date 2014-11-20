@@ -144,6 +144,18 @@ class Hayo {
                 .catch(err => console.error(err.stack));
         }));
 
+        socket.on('reverse to inprogress ticket', callbacks.tryFunc((ticketId: string, guid: string) => {
+            if (!isString(ticketId))
+                throw new Error('Type mismatch');
+            var user = session.user();
+            if (user == null)
+                throw new Error('user not found');
+            this.repos.database.reverseToInprogressTicket(user, ticketId)
+                .then(() => socket.emit(guid))
+                .then(() => this.emitTickets())
+                .catch(err => console.error(err.stack));
+        }));
+
         return Promise.all([
             Promise.resolve(socket.emit('user', session.user())),
             this.emitTickets()

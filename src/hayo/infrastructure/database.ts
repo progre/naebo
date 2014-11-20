@@ -207,6 +207,23 @@ class Database {
             });
     }
 
+    reverseToInprogressTicket(user: rps.User, ticketId: string) {
+        return this.transaction()
+            .then(t => {
+                return this.ticket.findOne(
+                    { where: { id: ticketId, progressUserId: toUserId(user) } },
+                    { transaction: t })
+                    .then(ticket => {
+                        ticket['type'] = rps.TicketType.inprogress;
+                        ticket['completedAt'] = null;
+                        return ticket.save({ transaction: t });
+                    })
+                    .then(() => {
+                        t.commit();
+                    });
+            });
+    }
+
     private transaction() {
         return this.sequelize.transaction({ autocommit: false });
     }

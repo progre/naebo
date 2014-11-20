@@ -77,6 +77,11 @@ app.controller('IndexController', ['$http', '$scope',
             null,
             ticket => $scope.user != null && equals($scope.user, ticket.progressUser));
 
+        $scope.reverseToInprogress = new PromiseCommand($scope,
+            ticket => server.reverseToInprogress(ticket.id),
+            null,
+            ticket => $scope.user != null && equals($scope.user, ticket.progressUser));
+
         $scope.logout = new PromiseCommand($scope,
             () => server.logout()
                 .then(() => {
