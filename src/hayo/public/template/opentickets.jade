@@ -51,11 +51,11 @@ div
         .panel-body
           form.form-inline.text-right(
             role='form',
-            ng-submit='progress.execute(ticket)')
+            ng-submit='progress.execute(ticket, isPost)')
             .form-group {{user.displayName}} 「{{ticket.title}} を作るよ！」
             .checkbox(style='margin-left: 1em;')
-              //- label
-                input(type='checkbox')
+              label
+                input(type='checkbox', ng-model='isPost', ng-init='isPost = true')
                 span(style='margin-left: 0.5em;') ツイートする
             .form-group(style='margin-left: 1em;')
               button.btn.btn-default(type='button',

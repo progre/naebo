@@ -11,7 +11,14 @@ class Session {
             provider: passportUser.provider,
             providerId: passportUser.providerId,
             displayName: passportUser.displayName,
-            photo: passportUser.photo
+            photo: passportUser.photo,
+
+            twitterAccessToken() {
+                return {
+                    token: passportUser.token,
+                    tokenSecret: passportUser.tokenSecret
+                };
+            }
         };
     }
 

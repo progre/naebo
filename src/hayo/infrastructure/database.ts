@@ -171,7 +171,10 @@ class Database {
                     }
                     return ticket.save({ transaction: t });
                 })
-                .then(() => t.commit());
+                .then((ticket) => {
+                    t.commit();
+                    return ticket;
+                });
         });
     }
 

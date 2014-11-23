@@ -43,7 +43,7 @@ body(style='background-image: url("img/geometry2.png"); background-attachment: f
               | {{user.displayName}}
               span.caret
             ul.dropdown-menu(role='menu')
-              li(ng-class='{ disabled: !logout.canExecute() }')
+              li(ng-class='{ disabled: !logout.isEnabled() }')
                 a(href='', ng-click='logout.execute()') ログアウト
           li(style='width: 150px')
             //- ribbon margin

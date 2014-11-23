@@ -1,13 +1,13 @@
 .panel.panel-default.anim.anim188px(ng-show='isOpen', ng-cloak)
   .panel-body
-    form(role='form', ng-submit='command.execute()')
+    form(role='form', ng-submit='command.execute(isPost)')
       ul.list-inline
         li
           | {{user.displayName}}
           small(style='margin-left: 0.5em;') さんのネタ
         li.checkbox(style='margin-left: 1em; margin-top: 0;')
-          //- label
-            input(type='checkbox', ng-model='isPost')
+          label
+            input(type='checkbox', ng-model='isPost', ng-init='isPost = true')
             | 作成時にツイートする
       .form-group
         input.form-control(

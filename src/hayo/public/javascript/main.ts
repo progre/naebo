@@ -1,5 +1,7 @@
 ﻿/// <reference path="../../../tsd.d.ts"/>
 
+import PromiseCommand = require('./domain/entity/promisecommand');
+import StackablePromiseCommand = require('./domain/entity/stackablepromisecommand');
 import directives = require('./module/directives');
 import Server = require('./infrastructure/server');
 import TicketRepos = require('./domain/repos/ticketrepos');
@@ -59,7 +61,7 @@ app.controller('IndexController', ['$http', '$scope',
             ticket => $scope.user != null);
 
         $scope.progress = new PromiseCommand($scope,
-            ticket => server.emitMethod('progress ticket', ticket.id),
+            (ticket, isPost) => server.emitMethod('progress ticket', ticket.id, isPost),
             null,
             ticket => $scope.user != null);
 
@@ -73,7 +75,7 @@ app.controller('IndexController', ['$http', '$scope',
             ticket => $scope.user != null && equals($scope.user, ticket.progressUser));
 
         $scope.complete = new PromiseCommand($scope,
-            (ticket, url) => server.emitMethod('complete ticket', ticket.id, url),
+            (ticket, url, isPost) => server.emitMethod('complete ticket', ticket.id, url, isPost),
             null,
             ticket => $scope.user != null && equals($scope.user, ticket.progressUser));
 
@@ -94,91 +96,19 @@ app.controller('NewTicketController', ['$http', '$scope',
         $scope.open = () => $scope.isOpen = true;
         $scope.close = () => $scope.isOpen = false;
 
-        $scope.command = new PromiseCommand($scope, () => {
-            var title: string = $scope.title;
-            $scope.title = '';
-            return ticketRepos.server.emitMethod('ticket', {
-                title: title,
-                isPost: $scope.isPost
-            })
-                .then(() => {
-                    $scope.close();
-                }).catch(e => { });
-        });
+        $scope.command = new PromiseCommand($scope,
+            isPost => {
+                var title: string = $scope.title;
+                $scope.title = '';
+                return ticketRepos.server.emitMethod('put ticket', title, isPost)
+                    .then(() => {
+                        $scope.close();
+                    });
+            });
     }]);
 
 function equals(a: { provider: string; providerId: string; }, b: { provider: string; providerId: string; }) {
     return a.provider === b.provider && a.providerId === b.providerId;
-}
-
-class PromiseCommand {
-    private executing = false;
-
-    constructor(
-        private $scope: any,
-        private _execute: (...args: any[]) => Promise<any>,
-        private _isEnabled?: (...args: any[]) => boolean,
-        private _isVisible?: (...args: any[]) => boolean) {
-    }
-
-    execute(...args: any[]) {
-        if (!this.isVisible.apply(this, arguments)
-            || !this.isEnabled.apply(this, arguments))
-            return;
-        this.executing = true;
-        (<Promise<any>>this._execute.apply(this, args))
-            .then(() => {
-                this.$scope.$apply(() => this.executing = false);
-            })
-            .catch(err => {
-                console.error(err.stack);
-            });
-    }
-
-    isEnabled(...args: any[]) {
-        return !this.executing
-            && (this._isEnabled == null || this._isEnabled.apply(this, arguments));
-    }
-
-    isVisible(...args: any[]) {
-        return this._isVisible == null || this._isVisible.apply(this, arguments);
-    }
-}
-
-class StackablePromiseCommand {
-    private executings: any[] = [];
-
-    constructor(
-        private $scope: any,
-        private _execute: (arg: any) => Promise<any>,
-        private _isEnabled?: (...args: any[]) => boolean,
-        private _isVisible?: (...args: any[]) => boolean) {
-    }
-
-    execute(arg: any) {
-        if (!this.isVisible(arg)
-            || !this.isEnabled(arg))
-            return;
-        this.executings.push(arg);
-        this._execute(arg)
-            .then(() => {
-                this.$scope.$apply(
-                    () => this.executings
-                        = this.executings.filter(x => x !== arg));
-            })
-            .catch(err => {
-                console.error(err.stack);
-            });
-    }
-
-    isEnabled(arg: any) {
-        return this.executings.indexOf(arg) < 0
-            && (this._isEnabled == null || this._isEnabled.apply(this, arguments));
-    }
-
-    isVisible(arg: any) {
-        return this._isVisible == null || this._isVisible.apply(this, arguments);
-    }
 }
 
 angular.bootstrap(document, ['app']);

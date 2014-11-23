@@ -43,7 +43,7 @@ ul.list-group
     .panel.panel-default.anim.anim150px(style='margin-top: 1em;',
       ng-show='isOpenCreated')
       .panel-body
-        form(role='form', ng-submit='complete.execute(ticket, url)')
+        form(role='form', ng-submit='complete.execute(ticket, url, isPost)')
           .form-group
             | {{user.displayName}} 「最高に面白いゲーム を作ったよ！」
           .form-group
@@ -51,9 +51,9 @@ ul.list-group
               ng-model='url')
           .text-right
             ul.list-inline
-              //- li.checkbox(style='margin-left: 1em; margin-top: 0;')
+              li.checkbox(style='margin-left: 1em; margin-top: 0;')
                 label
-                  input(type='checkbox')
+                  input(type='checkbox', ng-model='isPost', ng-init='isPost = true')
                   | ツイートする
               li(style='padding-right: 0;')
                 button.btn.btn-default(ng-click='isOpenCreated = false') 閉じる

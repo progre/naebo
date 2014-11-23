@@ -5,6 +5,7 @@ import callbacks = require('../util/callbacks');
 import SessionStore = require('../app/sessionstore');
 import Session = require('../app/session');
 import Database = require('./infrastructure/database');
+import Twitter = require('./infrastructure/twitter');
 import rps = require('./domain/repos/reposes');
 import Repos = require('./domain/repos/repos');
 
@@ -54,14 +55,16 @@ class Hayo {
             socket.emit(guid);
         }));
 
-        socket.on('ticket', callbacks.tryFunc((args: any, guid: string) => {
+        socket.on('put ticket', callbacks.tryFunc((title: string, isPost: boolean, guid: string) => {
+            requireString(title);
             var user = session.user();
             if (user == null)
                 throw new Error('user not found');
-            this.repos.database.putTicket(user, args.title)
+            this.repos.database.putTicket(user, title)
                 .then((ticket) => {
-                    if (args.isPost) {
-                        // twitterにPostする☀
+                    if (isPost) {
+                        var mes = '「' + title + '」を作って！\n\n作ってほしいもの、必要とされているものを共有しましょう はよつくって http://apps.prgrssv.net/hayo/';
+                        return Twitter.updateStatus(user.twitterAccessToken(), mes);
                     }
                 })
                 .catch(err => console.error(err.stack))
@@ -73,8 +76,7 @@ class Hayo {
         }));
 
         socket.on('delete ticket', callbacks.tryFunc((ticketId: string, guid: string) => {
-            if (!isString(ticketId))
-                throw new Error('Type mismatch');
+            requireString(ticketId);
             var user = session.user();
             if (user == null)
                 throw new Error('user not found');
@@ -85,8 +87,7 @@ class Hayo {
         }));
 
         socket.on('like open ticket', callbacks.tryFunc((ticketId: string, guid: string) => {
-            if (!isString(ticketId))
-                throw new Error('Type mismatch');
+            requireString(ticketId);
             var user = session.user();
             if (user == null)
                 throw new Error('user not found');
@@ -96,13 +97,18 @@ class Hayo {
                 .catch(err => console.error(err.stack) || console.trace());
         }));
 
-        socket.on('progress ticket', callbacks.tryFunc((ticketId: string, guid: string) => {
-            if (!isString(ticketId))
-                throw new Error('Type mismatch');
+        socket.on('progress ticket', callbacks.tryFunc((ticketId: string, isPost: boolean, guid: string) => {
+            requireString(ticketId);
             var user = session.user();
             if (user == null)
                 throw new Error('user not found');
             this.repos.database.progressTicket(user, ticketId)
+                .then(ticket => {
+                    if (isPost) {
+                        var mes = '「' + ticket['title'] + '」を作るよ！\n\n作ってほしいもの、必要とされているものを共有しましょう はよつくって http://apps.prgrssv.net/hayo/';
+                        return Twitter.updateStatus(user.twitterAccessToken(), mes);
+                    }
+                })
                 .then(() => socket.emit(guid))
                 .then(() => this.emitTickets())
                 .catch(err => console.error(err.stack));
@@ -121,8 +127,7 @@ class Hayo {
         }));
 
         socket.on('like inprogress ticket', callbacks.tryFunc((ticketId: string, guid: string) => {
-            if (!isString(ticketId))
-                throw new Error('Type mismatch');
+            requireString(ticketId);
             var user = session.user();
             if (user == null)
                 throw new Error('user not found');
@@ -132,21 +137,25 @@ class Hayo {
                 .catch(err => console.error(err.stack) || console.trace());
         }));
 
-        socket.on('complete ticket', callbacks.tryFunc((ticketId: string, url: string, guid: string) => {
-            if (!isString(ticketId) || !isString(url))
-                throw new Error('Type mismatch');
+        socket.on('complete ticket', callbacks.tryFunc((ticketId: string, url: string, isPost: boolean, guid: string) => {
+            requireString(ticketId, url);
             var user = session.user();
             if (user == null)
                 throw new Error('user not found');
             this.repos.database.completeTicket(user, ticketId, url)
+                .then(ticket => {
+                    if (isPost) {
+                        var mes = '「' + ticket['title'] + '」を作ったよ！\n' + ticket['url'] + '\n\n作ってほしいもの、必要とされているものを共有しましょう はよつくって http://apps.prgrssv.net/hayo/';
+                        return Twitter.updateStatus(user.twitterAccessToken(), mes);
+                    }
+                })
                 .then(() => socket.emit(guid))
                 .then(() => this.emitTickets())
                 .catch(err => console.error(err.stack));
         }));
 
         socket.on('reverse to inprogress ticket', callbacks.tryFunc((ticketId: string, guid: string) => {
-            if (!isString(ticketId))
-                throw new Error('Type mismatch');
+            requireString(ticketId);
             var user = session.user();
             if (user == null)
                 throw new Error('user not found');
@@ -183,6 +192,13 @@ function toArray<T>(obj: { [id: number]: T }) {
         list.push(obj[key]);
     }
     return list;
+}
+
+function requireString(...obj: any[]) {
+    obj.forEach(x => {
+        if (!isString(x))
+            throw new Error('Type mismatch');
+    });
 }
 
 function isString(obj: any) {

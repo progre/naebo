@@ -40,10 +40,10 @@ class HttpServer {
 
 function removeWWW(app: express.Express) {
     app.get('/*', (req: express.Request, res: express.Response, next: () => void) => {
-        if (req.host.match(/^www/) == null) {
+        if (req.hostname.match(/^www/) == null) {
             return next();
         }
-        res.redirect('http://' + req.host.replace(/^www\./, '') + req.url);
+        res.redirect('http://' + req.hostname.replace(/^www\./, '') + req.url);
     });
 }
 

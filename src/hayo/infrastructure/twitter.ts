@@ -3,6 +3,19 @@ var secret = require('../../secret.json');
 import promises = require('../../util/promises');
 
 class Twitter {
+    static updateStatus(accessToken: { token: string; tokenSecret: string; }, message: string) {
+        return new Promise((resolve, reject) => new TwitterJS(
+            {
+                consumer_key: secret.twitter.consumer_key,
+                consumer_secret: secret.twitter.consumer_secret,
+                access_token_key: accessToken.token,
+                access_token_secret: accessToken.tokenSecret
+            })
+            .updateStatus(message, (res: any) => {
+                resolve();
+            }));
+    }
+
     private twitter = new TwitterJS(secret.twitter);
 
     private caches: {
