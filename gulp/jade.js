@@ -1,4 +1,5 @@
 /// <reference path="../typings/tsd.d.ts"/>
+var clone = require('clone');
 var gulp = require('gulp');
 var jade = require('gulp-jade');
 var plumber = require('gulp-plumber');
@@ -25,14 +26,16 @@ function jadeSubTask(debug) {
         return fileUtils.getAppNames('src')
             .then(function (apps) {
                 return parallel(apps.map(function (app) {
+                    var data = {};
+                    try {
+                        data = require('../src/' + app + '/resources/ja.json');
+                    } catch (ex) {
+                    }
+                    data.debug = debug;
+                    data.appRoot = '/' + app + '/';
                     return gulp.src(['src/' + app + '/**/*.jade', '!**/template/**'])
                         .pipe(plumber())
-                        .pipe(jade({
-                            data: {
-                                debug: debug,
-                                appRoot: '/' + app + '/'
-                            }
-                        }))
+                        .pipe(jade({ data: data }))
                         .pipe(gulp.dest('app/' + app));
                 }));
             });

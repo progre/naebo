@@ -8,22 +8,25 @@ import Database = require('./infrastructure/database');
 import Twitter = require('./infrastructure/twitter');
 import rps = require('./domain/repos/reposes');
 import Repos = require('./domain/repos/repos');
+var resources = require('./resources/ja.json');
 
 class Hayo {
     static new(
         app: express.IRouter<void>,
         io: SocketIO.Server,
         sessionStore: SessionStore,
+        url: string,
         dataDir: string
         ) {
         return Repos.new(dataDir)
-            .then(repos => new Hayo(app, io, sessionStore, repos));
+            .then(repos => new Hayo(app, io, sessionStore, url, repos));
     }
 
     constructor(
         private app: express.IRouter<void>,
         private io: SocketIO.Server,
         private sessionStore: SessionStore,
+        private url: string,
         private repos: Repos) {
 
         app.get('/auth', (req: express.Request, res: express.Response) => {
@@ -50,6 +53,7 @@ class Hayo {
     }
 
     private initSocket(socket: SocketIO.Socket, session: Session) {
+        var TWEET = resources.brandText + ' ' + resources.brand + ' ' + resources.hashTag + ' ' + this.url;
         socket.on('logout', callbacks.tryFunc((guid: string) => {
             session.logout();
             socket.emit(guid);
@@ -63,7 +67,7 @@ class Hayo {
             this.repos.database.putTicket(user, title)
                 .then((ticket) => {
                     if (isPost) {
-                        var mes = '「' + title + '」を作って！\n\n作ってほしいもの、必要とされているものを共有しましょう はよつくって http://apps.prgrssv.net/hayo/';
+                        var mes = '「' + title + '」を' + resources.open + '\n\n' + TWEET;
                         return Twitter.updateStatus(user.twitterAccessToken(), mes);
                     }
                 })
@@ -105,7 +109,7 @@ class Hayo {
             this.repos.database.progressTicket(user, ticketId)
                 .then(ticket => {
                     if (isPost) {
-                        var mes = '「' + ticket['title'] + '」を作るよ！\n\n作ってほしいもの、必要とされているものを共有しましょう はよつくって http://apps.prgrssv.net/hayo/';
+                        var mes = '「' + ticket['title'] + '」を' + resources.iInprogress + '\n\n' + TWEET;
                         return Twitter.updateStatus(user.twitterAccessToken(), mes);
                     }
                 })
@@ -145,7 +149,7 @@ class Hayo {
             this.repos.database.completeTicket(user, ticketId, url)
                 .then(ticket => {
                     if (isPost) {
-                        var mes = '「' + ticket['title'] + '」を作ったよ！\n' + ticket['url'] + '\n\n作ってほしいもの、必要とされているものを共有しましょう はよつくって http://apps.prgrssv.net/hayo/';
+                        var mes = '「' + ticket['title'] + '」を' + resources.iCompleted + '\n' + ticket['url'] + '\n\n' + TWEET;
                         return Twitter.updateStatus(user.twitterAccessToken(), mes);
                     }
                 })
@@ -205,17 +209,12 @@ function isString(obj: any) {
     return typeof obj === 'string';
 }
 
-function index(
-    options: {
-        router: express.IRouter<void>;
-        io: SocketIO.Server;
-        sessionStore: any;
-        dataDir: string;
-    }) {
+function index(options: any) {
     return Hayo.new(
         options.router,
         options.io,
         options.sessionStore,
+        options.url,
         options.dataDir)
         .then(hayo => ({}));
 }

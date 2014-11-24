@@ -5,11 +5,11 @@ ul.list-group
     div
       a(ng-href='https://twitter.com/intent/user?user_id={{ticket.openUser.providerId}}')
         | {{ticket.openUser.displayName}}
-      small(style='margin-left: 0.5em; margin-right: 0.5em;') さんのネタを
+      small(style='margin-left: 0.5em; margin-right: 0.5em;') さんの#{ticket}を
       a(ng-href='https://twitter.com/intent/user?user_id={{ticket.progressUser.providerId}}')
         | {{ticket.progressUser.displayName}}
-      small(style='margin-left: 0.5em;') さんが作っています
-    h2.col-xs-12 {{ticket.title}}<small> を作るよ！</small>
+      small(style='margin-left: 0.5em;') さんが#{heInprogress}
+    h2.col-xs-12 {{ticket.title}}<small> を#{iInprogress}</small>
     p.text-right
       small {{ticket.createdAt | dateToDisplay}}
     .text-right
@@ -29,7 +29,7 @@ ul.list-group
         ng-show='likeInprogress.isVisible(ticket)',
         ng-disabled='!likeInprogress.isEnabled(ticket)',
         ng-click='likeInprogress.execute(ticket)'
-        ) はよ！
+        ) #{feed}
       .badge {{ticket.likeInprogresses}}
     .panel.panel-default.anim.anim64px(style='margin-top: 1em;',
       ng-show='isOpenDropout')
@@ -39,13 +39,13 @@ ul.list-group
           button.btn.btn-primary(style='margin-left: 1em;',
             ng-click='reverse.execute(ticket)',
             ng-disabled='!reverse.isEnabled()'
-            ) 投稿されたネタに戻す
+            ) #{openTickets}に戻す
     .panel.panel-default.anim.anim150px(style='margin-top: 1em;',
       ng-show='isOpenCreated')
       .panel-body
         form(role='form', ng-submit='complete.execute(ticket, url, isPost)')
           .form-group
-            | {{user.displayName}} 「最高に面白いゲーム を作ったよ！」
+            | {{user.displayName}} 「{{ticket.title}} を#{iCompleted}」
           .form-group
             input.form-control(type='url', placeholder='http://…', required,
               ng-model='url')

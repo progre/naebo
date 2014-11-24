@@ -4,11 +4,11 @@ div
     .text-center.anim.anim34px(style='margin-bottom: 1em;', ng-hide='isOpen')
       button.btn.btn-default.btn-block(
         style='font-weight: bold;',
-        title='ネタを作成します',
+        title='#{openButtonTitle}',
         ng-click='open()',
         ng-disabled='user == null')
         img(src='/img/ajax-loader.gif', ng-hide='true')
-        span(ng-cloak) {{user == null ? 'ログインするとネタを追加できます' : '+'}}
+        span(ng-cloak) {{user == null ? 'ログインすると#{ticket}を追加できます' : '+'}}
   ul.list-group
     li.list-group-item.text-center(ng-hide='true')
       img(src='/img/ajax-loader.gif')
@@ -20,7 +20,7 @@ div
       small(style='margin-left: 0.5em;') さんから
       h2.col-xs-12
         | {{ticket.title}}
-        small(style='margin-left: 0.5em;') を作って！
+        small(style='margin-left: 0.5em;') を#{open}
       p.text-right
         small {{ticket.createdAt | dateToDisplay}}
       .text-right
@@ -52,7 +52,7 @@ div
           form.form-inline.text-right(
             role='form',
             ng-submit='progress.execute(ticket, isPost)')
-            .form-group {{user.displayName}} 「{{ticket.title}} を作るよ！」
+            .form-group {{user.displayName}} 「{{ticket.title}} を#{iInprogress}」
             .checkbox(style='margin-left: 1em;')
               label
                 input(type='checkbox', ng-model='isPost', ng-init='isPost = true')
@@ -71,5 +71,5 @@ div
         ng-click='open()',
         ng-disabled='user == null')
         img(src='/img/ajax-loader.gif', ng-hide='true')
-        span(ng-cloak) {{user == null ? 'ログインするとネタを追加できます' : '+'}}
+        span(ng-cloak) {{user == null ? 'ログインすると#{ticket}を追加できます' : '+'}}
     include newticket.jade

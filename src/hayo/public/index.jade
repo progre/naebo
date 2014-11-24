@@ -1,8 +1,8 @@
 doctype html
 meta(charset='utf-8')
-title はよつくって - 作ってほしいもの、必要とされているものの共有サイト
-meta(name='description', content='作ってほしいもの、必要とされているものの共有サイト')
-meta(name='keywords', content='はよつくって,はよ作って,早く作って,チケット,かんばん,看板,TODOリスト')
+title #{title}
+meta(name='description', content='#{description}')
+meta(name='keywords', content='#{keywords}')
 meta(name='viewport',
   content='width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no')
 link(rel='stylesheet',
@@ -28,7 +28,7 @@ body(style='background-image: url("img/geometry2.png"); background-attachment: f
           span.icon-bar
           span.icon-bar
         a.navbar-brand(href='/') 〈
-        a.navbar-brand(href='#') はよつくって
+        a.navbar-brand(href='#') #{brand}
       #bs-example-navbar-collapse-1.collapse.navbar-collapse
         ul.nav.navbar-nav.pull-right
           li(ng-hide='true')
@@ -50,22 +50,22 @@ body(style='background-image: url("img/geometry2.png"); background-attachment: f
   main
     .jumbotron
       .container
-        h1 はよつくって
-        p 作ってほしいもの、必要とされているものを共有しましょう
+        h1 #{brand}
+        p #{brandText}
         a.twitter-share-button(href='https://twitter.com/share',
-          data-text='作ってほしいもの、必要とされているものを共有しましょう はよつくって',
+          data-text='#{brandText} #{brand} #{hashtag}',
           data-size='large') Tweet
         script !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
     .container
       div(ng-show='closeTickets.length > 0', ng-cloak)
         .page-header
-          h1 実現したネタ
+          h1 #{completedTickets}
         include template/completetickets.jade
       .page-header
-        h1 投稿されたネタ
+        h1 #{openTickets}
       include template/opentickets.jade
       .page-header
-        h1 拾われたネタ
+        h1 #{inprogressTickets}
       include template/inprogresstickets.jade
   footer.container-fluid(style='margin-top: 2em; margin-bottom: 1em;')
     .row

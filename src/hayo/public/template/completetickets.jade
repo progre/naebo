@@ -5,13 +5,13 @@ ul.list-group
     div
       a(ng-href='https://twitter.com/intent/user?user_id={{ticket.openUser.providerId}}')
         | {{ticket.openUser.displayName}}
-      small(style='margin-left: 0.5em; margin-right: 0.5em;') さんのネタを
+      small(style='margin-left: 0.5em; margin-right: 0.5em;') さんの#{ticket}を
       a(ng-href='https://twitter.com/intent/user?user_id={{ticket.progressUser.providerId}}')
         | {{ticket.progressUser.displayName}}
-      small(style='margin-left: 0.5em;') さんが実現しました
+      small(style='margin-left: 0.5em;') さんが#{heComplete}
     h2.col-xs-12
       a(ng-href='{{ticket.url}}') {{ticket.title}}
-      small(style='margin-left: 0.5em;') を作ったよ！
+      small(style='margin-left: 0.5em;') を#{iCompleted}
     p.text-right
       small {{ticket.createdAt | dateToDisplay}}
     .text-right
@@ -29,4 +29,4 @@ ul.list-group
           button.btn.btn-primary(style='margin-left: 1em;',
             ng-click='reverseToInprogress.execute(ticket)',
             ng-disabled='!reverseToInprogress.isEnabled()'
-            ) 拾われたネタに戻す
+            ) #{inprogressTickets}に戻す

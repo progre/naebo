@@ -1,0 +1,19 @@
+{
+  "title": "はよつくって - 作ってほしいもの、必要とされているものの共有サイト",
+  "description": "作ってほしいもの、必要とされているものの共有サイト",
+  "keywords": "はよつくって,はよ作って,早く作って,チケット,かんばん,看板,TODOリスト",
+  "brand": "はよつくって",
+  "brandText": "作ってほしいもの、必要とされているものを共有しましょう",
+  "hashtag": "#はよつくって",
+  "completedTickets": "実現したネタ",
+  "openTickets": "投稿されたネタ",
+  "inprogressTickets": "拾われたネタ",
+  "ticket": "ネタ",
+  "feed": "はよ！",
+  "openButtonTitle": "ネタを作成します",
+  "open": "作って！",
+  "heInprogress": "作っています",
+  "iInprogress": "作るよ！",
+  "heCompleted": "実現しました",
+  "iCompleted": "作ったよ！"
+}

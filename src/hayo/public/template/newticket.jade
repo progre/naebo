@@ -4,7 +4,7 @@
       ul.list-inline
         li
           | {{user.displayName}}
-          small(style='margin-left: 0.5em;') さんのネタ
+          small(style='margin-left: 0.5em;') さんの#{ticket}
         li.checkbox(style='margin-left: 1em; margin-top: 0;')
           label
             input(type='checkbox', ng-model='isPost', ng-init='isPost = true')
@@ -13,7 +13,7 @@
         input.form-control(
           type='text', placeholder='アイディア', maxlength='32', required,
           ng-model='title')
-      .form-group.text-right を作って！
+      .form-group.text-right を#{open}
       .text-right
         button.btn.btn-default(type='button', ng-click='close()') 閉じる
         input.btn.btn-primary(style='margin-left: 1em;',

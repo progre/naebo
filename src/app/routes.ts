@@ -46,6 +46,7 @@ function load(
                 router: router,
                 io: socketIO(server, { path: '/' + appName + '/socket.io' }),
                 sessionStore: sessionStore,
+                url: 'http://apps.prgrssv.net/' + appName + '/',
                 dataDir: appDataDir
             });
             app.use('/' + appName, router);
