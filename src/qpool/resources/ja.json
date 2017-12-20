@@ -1,0 +1,19 @@
+{
+  "title": "Qiitaネタプール - 書いてほしい技術情報の共有サイト",
+  "description": "書いてほしい技術情報の共有サイト",
+  "keywords": "Qiitaネタプール,チケット,かんばん,看板,TODOリスト",
+  "brand": "Qiitaネタプール",
+  "brandText": "書いてほしい技術情報を共有しましょう",
+  "hashtag": "#Qiitaネタプール",
+  "completedTickets": "投稿された記事",
+  "openTickets": "書いてほしい記事",
+  "inprogressTickets": "書き始められた記事",
+  "ticket": "ネタ",
+  "feed": "読みたい！",
+  "openButtonTitle": "ネタを作成します",
+  "open": "書いて！",
+  "heInprogress": "書いています",
+  "iInprogress": "書くよ！",
+  "heCompleted": "書きました",
+  "iCompleted": "書いたよ！"
+}

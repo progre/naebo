@@ -6,12 +6,11 @@ import directives = require('./module/directives');
 import Server = require('./infrastructure/server');
 import TicketRepos = require('./domain/repos/ticketrepos');
 
-var appRoot = '/hayo/';
-var apiRoot = appRoot + 'api/1/';
+var appRoot = location.pathname;
 
 var app = angular.module('app', ['ngAnimate', 'ngCookies']);
 
-var ticketRepos = new TicketRepos(new Server(apiRoot));
+var ticketRepos = new TicketRepos(new Server(appRoot));
 
 app.config([
     '$locationProvider',
@@ -19,8 +18,6 @@ app.config([
         $locationProvider.html5Mode(true);
     }
 ]);
-
-app.directive('newticket', directives.simple(appRoot, 'newticket'));
 
 app.filter('dateToDisplay', [() => (date: Date) => {
     if (date == null)

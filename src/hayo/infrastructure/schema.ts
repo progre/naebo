@@ -15,7 +15,7 @@ class Schema {
             id: SERIAL,
             title: {
                 type: Sequelize.STRING,
-                validate: { len: [1, 32] }
+                validate: { len: [1, 64] }
             },
             type: Sequelize.INTEGER,
             url: {

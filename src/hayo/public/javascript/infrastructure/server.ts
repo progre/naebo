@@ -1,9 +1,9 @@
 import EventEmitter2 = require('eventemitter2');
 
 class Server extends EventEmitter2 {
-    private socket = io({ path: '/hayo/socket.io' });
+    private socket = io({ path: this.appRoot + 'socket.io' });
     constructor(
-        private apiRoot: string
+        private appRoot: string
         ) {
         super();
         this.socket.on('connect', () => {
